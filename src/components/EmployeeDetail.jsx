@@ -6,7 +6,7 @@ import StatusBadge from './StatusBadge';
 import ContributionBadge from './ContributionBadge';
 import ProgressBar from './ProgressBar';
 import SalaryBandViz from './SalaryBandViz';
-import { calcWeightedGoalScore, calcSalaryRecommendation } from '../utils/calculations';
+import { calcWeightedGoalScore, calcSalaryRecommendation, distributeBudget } from '../utils/calculations';
 import { categoryLabels } from '../data/employees';
 
 const categoryColors = {
@@ -42,7 +42,7 @@ const tabContent = {
   exit: { opacity: 0, y: -8, transition: { duration: 0.15 } },
 };
 
-export default function EmployeeDetail({ emp, onBack, onUpdate }) {
+export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employees }) {
   const [activeTab, setActiveTab] = useState('goals');
   const [editingGoal, setEditingGoal] = useState(null);
   const [newExtra, setNewExtra] = useState('');
@@ -51,6 +51,8 @@ export default function EmployeeDetail({ emp, onBack, onUpdate }) {
 
   const rec = calcSalaryRecommendation(emp);
   const goalScore = calcWeightedGoalScore(emp.personalGoals);
+  const dist = distributeBudget(employees, budget);
+  const alloc = dist?.allocations.find((a) => a.empId === emp.id);
 
   const updateGoalProgress = (goalId, newProgress) => {
     const clamped = Math.max(0, Math.min(100, newProgress));
@@ -340,6 +342,28 @@ export default function EmployeeDetail({ emp, onBack, onUpdate }) {
                 </div>
               </div>
             </Card>
+
+            {alloc && (
+              <Card style={{ background: 'linear-gradient(135deg, var(--surface), rgba(74,222,128,0.03))', borderColor: 'rgba(74,222,128,0.15)' }}>
+                <div className="salary-summary">
+                  <div>
+                    <div className="kpi-label">Aus Budget (€{budget.toLocaleString('de-DE')})</div>
+                    <div style={{ fontSize: 34, fontWeight: 700, color: 'var(--accent)', fontFamily: 'var(--font-display)' }}>
+                      +€{alloc.allocated.toLocaleString('de-DE')}
+                    </div>
+                  </div>
+                  <div className="salary-summary-detail">
+                    <div>€{emp.currentSalary.toLocaleString('de-DE')} → €{alloc.newSalary.toLocaleString('de-DE')}</div>
+                    <div style={{ marginTop: 2 }}>+{alloc.percentage}%</div>
+                    {alloc.isCapped && (
+                      <div style={{ marginTop: 4, color: 'var(--warning)', fontSize: 11 }}>
+                        Durch Budget begrenzt (ideal: +€{rec.increaseAbsolute.toLocaleString('de-DE')})
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

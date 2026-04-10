@@ -7,6 +7,7 @@ import { initialEmployees } from './data/employees';
 export default function App() {
   const [employees, setEmployees] = useState(initialEmployees);
   const [selectedId, setSelectedId] = useState(null);
+  const [budget, setBudget] = useState(15000);
 
   const selectedEmp = employees.find((e) => e.id === selectedId);
 
@@ -31,12 +32,16 @@ export default function App() {
             emp={selectedEmp}
             onBack={() => setSelectedId(null)}
             onUpdate={handleUpdate}
+            budget={budget}
+            employees={employees}
           />
         ) : (
           <DashboardView
             key="dashboard"
             employees={employees}
             onSelect={(emp) => setSelectedId(emp.id)}
+            budget={budget}
+            onBudgetChange={setBudget}
           />
         )}
       </AnimatePresence>

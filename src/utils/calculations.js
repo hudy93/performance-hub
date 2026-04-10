@@ -38,8 +38,56 @@ export function calcSalaryRecommendation(emp) {
   return {
     percentage: finalIncrease,
     newSalary,
+    increaseAbsolute: newSalary - emp.currentSalary,
     marketGap: Math.round(marketGap * 10) / 10,
     bandPosition: Math.round(bandPosition),
     performanceMultiplier: Math.round(performanceMultiplier * 100),
+  };
+}
+
+export function distributeBudget(employees, budget) {
+  if (!budget || budget <= 0) return null;
+
+  const recs = employees.map((emp) => {
+    const rec = calcSalaryRecommendation(emp);
+    return { emp, rec, idealIncrease: rec.newSalary - emp.currentSalary };
+  });
+
+  const totalIdeal = recs.reduce((s, r) => s + r.idealIncrease, 0);
+
+  // If budget covers everything, use ideal recommendations
+  if (budget >= totalIdeal) {
+    return {
+      totalIdeal,
+      remaining: budget - totalIdeal,
+      allocations: recs.map((r) => ({
+        empId: r.emp.id,
+        allocated: r.idealIncrease,
+        newSalary: r.rec.newSalary,
+        percentage: r.rec.percentage,
+        isCapped: false,
+      })),
+    };
+  }
+
+  // Otherwise distribute proportionally based on ideal increase weights
+  const ratio = budget / totalIdeal;
+  const allocations = recs.map((r) => {
+    const allocated = Math.round(r.idealIncrease * ratio);
+    const newSalary = r.emp.currentSalary + allocated;
+    const percentage = Math.round((allocated / r.emp.currentSalary) * 1000) / 10;
+    return {
+      empId: r.emp.id,
+      allocated,
+      newSalary,
+      percentage,
+      isCapped: true,
+    };
+  });
+
+  return {
+    totalIdeal,
+    remaining: budget - allocations.reduce((s, a) => s + a.allocated, 0),
+    allocations,
   };
 }
