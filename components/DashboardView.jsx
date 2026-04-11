@@ -17,8 +17,23 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
 };
 
-export default function DashboardView({ employees, onSelect, budget, onBudgetChange }) {
+const emptyForm = {
+  name: '',
+  role: '',
+  department: '',
+  currentSalary: '',
+  salaryBandMin: '',
+  salaryBandMid: '',
+  salaryBandMax: '',
+  marketRate: '',
+  inflation: '3.2',
+  performanceScore: '3.0',
+};
+
+export default function DashboardView({ employees, onSelect, onAddEmployee, onDeleteEmployee, budget, onBudgetChange }) {
   const [editingBudget, setEditingBudget] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [form, setForm] = useState(emptyForm);
 
   const avgScore = employees.reduce((s, e) => s + e.performanceScore, 0) / employees.length;
   const avgGoal = employees.reduce((s, e) => s + calcWeightedGoalScore(e.personalGoals), 0) / employees.length;
@@ -136,7 +151,70 @@ export default function DashboardView({ employees, onSelect, budget, onBudgetCha
       </motion.div>
 
       <motion.div variants={fadeUp}>
-        <h3 className="section-title">Mitarbeiter</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h3 className="section-title" style={{ margin: 0 }}>Mitarbeiter</h3>
+          <button
+            className="btn btn--primary"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            {showAddForm ? '✕ Abbrechen' : '+ Hinzufügen'}
+          </button>
+        </div>
+
+        {showAddForm && (
+          <Card className="card--dashed" style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 12 }}>
+              Neuen Mitarbeiter anlegen
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <input className="input" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <input className="input" placeholder="Rolle" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
+              <input className="input" placeholder="Abteilung" value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} />
+              <input className="input" type="number" placeholder="Aktuelles Gehalt" value={form.currentSalary} onChange={(e) => setForm({ ...form, currentSalary: e.target.value })} />
+              <input className="input" type="number" placeholder="Gehaltsband Min" value={form.salaryBandMin} onChange={(e) => setForm({ ...form, salaryBandMin: e.target.value })} />
+              <input className="input" type="number" placeholder="Gehaltsband Mitte" value={form.salaryBandMid} onChange={(e) => setForm({ ...form, salaryBandMid: e.target.value })} />
+              <input className="input" type="number" placeholder="Gehaltsband Max" value={form.salaryBandMax} onChange={(e) => setForm({ ...form, salaryBandMax: e.target.value })} />
+              <input className="input" type="number" placeholder="Marktwert" value={form.marketRate} onChange={(e) => setForm({ ...form, marketRate: e.target.value })} />
+              <input className="input" type="number" step="0.1" placeholder="Inflation %" value={form.inflation} onChange={(e) => setForm({ ...form, inflation: e.target.value })} />
+              <input className="input" type="number" step="0.1" min="1" max="5" placeholder="Performance Score (1-5)" value={form.performanceScore} onChange={(e) => setForm({ ...form, performanceScore: e.target.value })} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+              <button
+                className="btn btn--primary"
+                disabled={!form.name || !form.role || !form.department || !form.currentSalary}
+                onClick={async () => {
+                  const initials = form.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
+                  const newEmp = {
+                    name: form.name,
+                    role: form.role,
+                    department: form.department,
+                    avatar: initials,
+                    currentSalary: parseInt(form.currentSalary),
+                    salaryBand: {
+                      min: parseInt(form.salaryBandMin) || parseInt(form.currentSalary) * 0.85,
+                      mid: parseInt(form.salaryBandMid) || parseInt(form.currentSalary) * 1.05,
+                      max: parseInt(form.salaryBandMax) || parseInt(form.currentSalary) * 1.22,
+                    },
+                    marketRate: parseInt(form.marketRate) || parseInt(form.currentSalary) * 1.08,
+                    inflation: parseFloat(form.inflation) || 3.2,
+                    personalGoals: [],
+                    teamGoals: [],
+                    extras: [],
+                    highlights: [],
+                    performanceScore: parseFloat(form.performanceScore) || 3.0,
+                    lastReview: new Date().toISOString().split('T')[0],
+                  };
+                  await onAddEmployee(newEmp);
+                  setForm(emptyForm);
+                  setShowAddForm(false);
+                }}
+              >
+                Mitarbeiter anlegen
+              </button>
+            </div>
+          </Card>
+        )}
+
         <div className="employee-list">
           {employees.map((emp) => {
             const rec = calcSalaryRecommendation(emp);

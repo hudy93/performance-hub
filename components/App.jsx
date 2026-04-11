@@ -66,6 +66,33 @@ export default function App() {
     }, 300);
   }, []);
 
+  // Add new employee via POST
+  const handleAddEmployee = useCallback(async (newEmp) => {
+    try {
+      const res = await fetch('/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newEmp),
+      });
+      const created = await res.json();
+      setEmployees((prev) => [...prev, created]);
+      return created;
+    } catch (err) {
+      console.error('Failed to create employee:', err);
+    }
+  }, []);
+
+  // Delete employee via DELETE
+  const handleDeleteEmployee = useCallback(async (id) => {
+    try {
+      await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+      setEmployees((prev) => prev.filter((e) => e.id !== id));
+      if (selectedId === id) setSelectedId(null);
+    } catch (err) {
+      console.error('Failed to delete employee:', err);
+    }
+  }, [selectedId]);
+
   const selectedEmp = employees.find((e) => e.id === selectedId);
 
   if (loading) {
@@ -110,6 +137,8 @@ export default function App() {
             key="dashboard"
             employees={employees}
             onSelect={(emp) => setSelectedId(emp.id)}
+            onAddEmployee={handleAddEmployee}
+            onDeleteEmployee={handleDeleteEmployee}
             budget={budget}
             onBudgetChange={handleBudgetChange}
           />
