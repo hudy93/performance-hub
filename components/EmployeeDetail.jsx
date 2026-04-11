@@ -47,6 +47,9 @@ const tabContent = {
 export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employees }) {
   const [activeTab, setActiveTab] = useState('goals');
   const [editingGoal, setEditingGoal] = useState(null);
+  const [editGoalData, setEditGoalData] = useState(null);
+  const [editingTeamGoal, setEditingTeamGoal] = useState(null);
+  const [editTeamGoalData, setEditTeamGoalData] = useState(null);
   const [newExtra, setNewExtra] = useState('');
   const [newExtraCat, setNewExtraCat] = useState('initiative');
   const [editingSalary, setEditingSalary] = useState(false);
@@ -58,22 +61,69 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
   const dist = distributeBudget(employees, budget);
   const alloc = dist?.allocations.find((a) => a.empId === emp.id);
 
-  const updateGoalProgress = (goalId, newProgress) => {
-    const clamped = Math.max(0, Math.min(100, newProgress));
-    const updated = {
+  const startEditGoal = (goal) => {
+    setEditingGoal(goal.id);
+    setEditGoalData({
+      title: goal.title,
+      measurable: goal.measurable || '',
+      deadline: goal.deadline || '',
+      weight: String(goal.weight),
+      progress: String(goal.progress),
+    });
+  };
+
+  const saveGoalEdit = (goalId) => {
+    const progress = Math.max(0, Math.min(100, parseInt(editGoalData.progress) || 0));
+    onUpdate({
       ...emp,
       personalGoals: emp.personalGoals.map((g) =>
         g.id === goalId
           ? {
               ...g,
-              progress: clamped,
-              status: clamped >= 100 ? 'completed' : clamped >= 60 ? 'on-track' : clamped >= 30 ? 'at-risk' : 'behind',
+              title: editGoalData.title,
+              measurable: editGoalData.measurable,
+              deadline: editGoalData.deadline,
+              weight: parseInt(editGoalData.weight) || 20,
+              progress,
+              status: progress >= 100 ? 'completed' : progress >= 60 ? 'on-track' : progress >= 30 ? 'at-risk' : 'behind',
             }
           : g,
       ),
-    };
-    onUpdate(updated);
+    });
     setEditingGoal(null);
+    setEditGoalData(null);
+  };
+
+  const startEditTeamGoal = (goal) => {
+    setEditingTeamGoal(goal.id);
+    setEditTeamGoalData({
+      title: goal.title,
+      measurable: goal.measurable || '',
+      deadline: goal.deadline || '',
+      contribution: goal.contribution,
+      progress: String(goal.progress),
+    });
+  };
+
+  const saveTeamGoalEdit = (goalId) => {
+    const progress = Math.max(0, Math.min(100, parseInt(editTeamGoalData.progress) || 0));
+    onUpdate({
+      ...emp,
+      teamGoals: emp.teamGoals.map((g) =>
+        g.id === goalId
+          ? {
+              ...g,
+              title: editTeamGoalData.title,
+              measurable: editTeamGoalData.measurable,
+              deadline: editTeamGoalData.deadline,
+              contribution: editTeamGoalData.contribution,
+              progress,
+            }
+          : g,
+      ),
+    });
+    setEditingTeamGoal(null);
+    setEditTeamGoalData(null);
   };
 
   const addPersonalGoal = () => {
@@ -120,16 +170,6 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
     onUpdate({
       ...emp,
       teamGoals: emp.teamGoals.filter((g) => g.id !== goalId),
-    });
-  };
-
-  const updateTeamGoalProgress = (goalId, newProgress) => {
-    const clamped = Math.max(0, Math.min(100, newProgress));
-    onUpdate({
-      ...emp,
-      teamGoals: emp.teamGoals.map((g) =>
-        g.id === goalId ? { ...g, progress: clamped } : g,
-      ),
     });
   };
 
@@ -208,54 +248,58 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
             <h3 className="section-title">Persönliche Ziele</h3>
             {emp.personalGoals.map((goal) => (
               <Card key={goal.id}>
-                <div className="goal-header">
-                  <div style={{ flex: 1 }}>
-                    <div className="goal-title-row">
-                      <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{goal.title}</span>
-                      <StatusBadge status={goal.status} />
-                    </div>
-                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
-                      <span className="goal-weight">Gewichtung: {goal.weight}%</span>
-                      {goal.measurable && (
-                        <span style={{ fontSize: 11, color: 'var(--blue)' }}>Messbar: {goal.measurable}</span>
-                      )}
-                      {goal.deadline && (
-                        <span style={{ fontSize: 11, color: 'var(--warning)' }}>Frist: {new Date(goal.deadline).toLocaleDateString('de-DE')}</span>
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {editingGoal === goal.id ? (
+                {editingGoal === goal.id && editGoalData ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 2 }}>Ziel bearbeiten (SMART)</div>
+                    <input className="input" value={editGoalData.title} onChange={(e) => setEditGoalData({ ...editGoalData, title: e.target.value })} placeholder="S — Spezifisches Ziel" />
+                    <input className="input" value={editGoalData.measurable} onChange={(e) => setEditGoalData({ ...editGoalData, measurable: e.target.value })} placeholder="M — Messkriterium" />
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input type="date" className="input" style={{ flex: 1 }} value={editGoalData.deadline} onChange={(e) => setEditGoalData({ ...editGoalData, deadline: e.target.value })} title="T — Frist" />
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          defaultValue={goal.progress}
-                          className="input input--small"
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') updateGoalProgress(goal.id, parseInt(e.target.value));
-                          }}
-                          autoFocus
-                        />
-                        <button className="btn btn--cancel" onClick={() => setEditingGoal(null)}>✕</button>
+                        <input type="number" min="0" max="100" className="input input--small" style={{ width: 60 }} value={editGoalData.weight} onChange={(e) => setEditGoalData({ ...editGoalData, weight: e.target.value })} />
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Gew.</span>
                       </div>
-                    ) : (
-                      <>
-                        <button className="btn btn--ghost" onClick={() => setEditingGoal(goal.id)}>
-                          Bearbeiten
-                        </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <input type="number" min="0" max="100" className="input input--small" style={{ width: 60 }} value={editGoalData.progress} onChange={(e) => setEditGoalData({ ...editGoalData, progress: e.target.value })} />
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Fortschr.</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <button className="btn btn--ghost" onClick={() => { setEditingGoal(null); setEditGoalData(null); }}>Abbrechen</button>
+                      <button className="btn btn--primary" onClick={() => saveGoalEdit(goal.id)}>Speichern</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="goal-header">
+                      <div style={{ flex: 1 }}>
+                        <div className="goal-title-row">
+                          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{goal.title}</span>
+                          <StatusBadge status={goal.status} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
+                          <span className="goal-weight">Gewichtung: {goal.weight}%</span>
+                          {goal.measurable && (
+                            <span style={{ fontSize: 11, color: 'var(--blue)' }}>Messbar: {goal.measurable}</span>
+                          )}
+                          {goal.deadline && (
+                            <span style={{ fontSize: 11, color: 'var(--warning)' }}>Frist: {new Date(goal.deadline).toLocaleDateString('de-DE')}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button className="btn btn--ghost" onClick={() => startEditGoal(goal)}>Bearbeiten</button>
                         <button className="btn btn--ghost" style={{ color: 'var(--danger)' }} onClick={() => deletePersonalGoal(goal.id)}>✕</button>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="goal-progress-row">
-                  <div style={{ flex: 1 }}>
-                    <ProgressBar value={goal.progress} color={goalStatusColor[goal.status] || 'var(--blue)'} />
-                  </div>
-                  <span className="goal-percent">{goal.progress}%</span>
-                </div>
+                      </div>
+                    </div>
+                    <div className="goal-progress-row">
+                      <div style={{ flex: 1 }}>
+                        <ProgressBar value={goal.progress} color={goalStatusColor[goal.status] || 'var(--blue)'} />
+                      </div>
+                      <span className="goal-percent">{goal.progress}%</span>
+                    </div>
+                  </>
+                )}
               </Card>
             ))}
 
@@ -313,36 +357,54 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
             <h3 className="section-title" style={{ marginTop: 8 }}>Team-Ziele</h3>
             {emp.teamGoals.map((goal) => (
               <Card key={goal.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{goal.title}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ContributionBadge level={goal.contribution} />
-                    <button className="btn btn--ghost" style={{ color: 'var(--danger)', padding: '2px 6px' }} onClick={() => deleteTeamGoal(goal.id)}>✕</button>
+                {editingTeamGoal === goal.id && editTeamGoalData ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 2 }}>Team-Ziel bearbeiten (SMART)</div>
+                    <input className="input" value={editTeamGoalData.title} onChange={(e) => setEditTeamGoalData({ ...editTeamGoalData, title: e.target.value })} placeholder="S — Spezifisches Ziel" />
+                    <input className="input" value={editTeamGoalData.measurable} onChange={(e) => setEditTeamGoalData({ ...editTeamGoalData, measurable: e.target.value })} placeholder="M — Messkriterium" />
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input type="date" className="input" style={{ flex: 1 }} value={editTeamGoalData.deadline} onChange={(e) => setEditTeamGoalData({ ...editTeamGoalData, deadline: e.target.value })} title="T — Frist" />
+                      <select className="select" value={editTeamGoalData.contribution} onChange={(e) => setEditTeamGoalData({ ...editTeamGoalData, contribution: e.target.value })}>
+                        <option value="high">Hoch</option>
+                        <option value="medium">Mittel</option>
+                        <option value="low">Niedrig</option>
+                      </select>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <input type="number" min="0" max="100" className="input input--small" style={{ width: 60 }} value={editTeamGoalData.progress} onChange={(e) => setEditTeamGoalData({ ...editTeamGoalData, progress: e.target.value })} />
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>%</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <button className="btn btn--ghost" onClick={() => { setEditingTeamGoal(null); setEditTeamGoalData(null); }}>Abbrechen</button>
+                      <button className="btn btn--primary" onClick={() => saveTeamGoalEdit(goal.id)}>Speichern</button>
+                    </div>
                   </div>
-                </div>
-                {(goal.measurable || goal.deadline) && (
-                  <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
-                    {goal.measurable && (
-                      <span style={{ fontSize: 11, color: 'var(--blue)' }}>Messbar: {goal.measurable}</span>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{goal.title}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <ContributionBadge level={goal.contribution} />
+                        <button className="btn btn--ghost" onClick={() => startEditTeamGoal(goal)}>✎</button>
+                        <button className="btn btn--ghost" style={{ color: 'var(--danger)', padding: '2px 6px' }} onClick={() => deleteTeamGoal(goal.id)}>✕</button>
+                      </div>
+                    </div>
+                    {(goal.measurable || goal.deadline) && (
+                      <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
+                        {goal.measurable && (
+                          <span style={{ fontSize: 11, color: 'var(--blue)' }}>Messbar: {goal.measurable}</span>
+                        )}
+                        {goal.deadline && (
+                          <span style={{ fontSize: 11, color: 'var(--warning)' }}>Frist: {new Date(goal.deadline).toLocaleDateString('de-DE')}</span>
+                        )}
+                      </div>
                     )}
-                    {goal.deadline && (
-                      <span style={{ fontSize: 11, color: 'var(--warning)' }}>Frist: {new Date(goal.deadline).toLocaleDateString('de-DE')}</span>
-                    )}
-                  </div>
+                    <div className="goal-progress-row">
+                      <div style={{ flex: 1 }}><ProgressBar value={goal.progress} color="var(--blue)" /></div>
+                      <span className="goal-percent">{goal.progress}%</span>
+                    </div>
+                  </>
                 )}
-                <div className="goal-progress-row">
-                  <div style={{ flex: 1 }}><ProgressBar value={goal.progress} color="var(--blue)" /></div>
-                  <button
-                    className="btn btn--ghost"
-                    style={{ fontSize: 12, padding: '2px 8px' }}
-                    onClick={() => {
-                      const val = prompt('Fortschritt (0-100):', goal.progress);
-                      if (val !== null) updateTeamGoalProgress(goal.id, parseInt(val));
-                    }}
-                  >
-                    {goal.progress}%
-                  </button>
-                </div>
               </Card>
             ))}
 
