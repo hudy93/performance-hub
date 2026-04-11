@@ -50,6 +50,10 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
   const [newExtra, setNewExtra] = useState('');
   const [newExtraCat, setNewExtraCat] = useState('initiative');
   const [editingSalary, setEditingSalary] = useState(false);
+  const [newGoalTitle, setNewGoalTitle] = useState('');
+  const [newGoalWeight, setNewGoalWeight] = useState('20');
+  const [newTeamGoalTitle, setNewTeamGoalTitle] = useState('');
+  const [newTeamGoalContribution, setNewTeamGoalContribution] = useState('medium');
 
   const rec = calcSalaryRecommendation(emp);
   const goalScore = calcWeightedGoalScore(emp.personalGoals);
@@ -72,6 +76,61 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
     };
     onUpdate(updated);
     setEditingGoal(null);
+  };
+
+  const addPersonalGoal = () => {
+    if (!newGoalTitle.trim()) return;
+    onUpdate({
+      ...emp,
+      personalGoals: [...emp.personalGoals, {
+        id: Date.now(),
+        title: newGoalTitle,
+        progress: 0,
+        weight: parseInt(newGoalWeight) || 20,
+        status: 'behind',
+      }],
+    });
+    setNewGoalTitle('');
+    setNewGoalWeight('20');
+  };
+
+  const deletePersonalGoal = (goalId) => {
+    onUpdate({
+      ...emp,
+      personalGoals: emp.personalGoals.filter((g) => g.id !== goalId),
+    });
+  };
+
+  const addTeamGoal = () => {
+    if (!newTeamGoalTitle.trim()) return;
+    onUpdate({
+      ...emp,
+      teamGoals: [...emp.teamGoals, {
+        id: Date.now(),
+        title: newTeamGoalTitle,
+        progress: 0,
+        contribution: newTeamGoalContribution,
+      }],
+    });
+    setNewTeamGoalTitle('');
+    setNewTeamGoalContribution('medium');
+  };
+
+  const deleteTeamGoal = (goalId) => {
+    onUpdate({
+      ...emp,
+      teamGoals: emp.teamGoals.filter((g) => g.id !== goalId),
+    });
+  };
+
+  const updateTeamGoalProgress = (goalId, newProgress) => {
+    const clamped = Math.max(0, Math.min(100, newProgress));
+    onUpdate({
+      ...emp,
+      teamGoals: emp.teamGoals.map((g) =>
+        g.id === goalId ? { ...g, progress: clamped } : g,
+      ),
+    });
   };
 
   const addExtra = () => {
@@ -174,9 +233,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
                         <button className="btn btn--cancel" onClick={() => setEditingGoal(null)}>✕</button>
                       </div>
                     ) : (
-                      <button className="btn btn--ghost" onClick={() => setEditingGoal(goal.id)}>
-                        Bearbeiten
-                      </button>
+                      <>
+                        <button className="btn btn--ghost" onClick={() => setEditingGoal(goal.id)}>
+                          Bearbeiten
+                        </button>
+                        <button className="btn btn--ghost" style={{ color: 'var(--danger)' }} onClick={() => deletePersonalGoal(goal.id)}>✕</button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -189,19 +251,87 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
               </Card>
             ))}
 
+            <Card className="card--dashed">
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>
+                Neues persönliches Ziel
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <input
+                  value={newGoalTitle}
+                  onChange={(e) => setNewGoalTitle(e.target.value)}
+                  placeholder="Zielbeschreibung..."
+                  className="input"
+                  style={{ flex: 1, minWidth: 200 }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') addPersonalGoal(); }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={newGoalWeight}
+                    onChange={(e) => setNewGoalWeight(e.target.value)}
+                    className="input input--small"
+                    style={{ width: 60 }}
+                    placeholder="%"
+                  />
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>%</span>
+                </div>
+                <button className="btn btn--primary" onClick={addPersonalGoal}>+ Hinzufügen</button>
+              </div>
+            </Card>
+
             <h3 className="section-title" style={{ marginTop: 8 }}>Team-Ziele</h3>
             {emp.teamGoals.map((goal) => (
               <Card key={goal.id}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{goal.title}</span>
-                  <ContributionBadge level={goal.contribution} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ContributionBadge level={goal.contribution} />
+                    <button className="btn btn--ghost" style={{ color: 'var(--danger)', padding: '2px 6px' }} onClick={() => deleteTeamGoal(goal.id)}>✕</button>
+                  </div>
                 </div>
                 <div className="goal-progress-row">
                   <div style={{ flex: 1 }}><ProgressBar value={goal.progress} color="var(--blue)" /></div>
-                  <span className="goal-percent">{goal.progress}%</span>
+                  <button
+                    className="btn btn--ghost"
+                    style={{ fontSize: 12, padding: '2px 8px' }}
+                    onClick={() => {
+                      const val = prompt('Fortschritt (0-100):', goal.progress);
+                      if (val !== null) updateTeamGoalProgress(goal.id, parseInt(val));
+                    }}
+                  >
+                    {goal.progress}%
+                  </button>
                 </div>
               </Card>
             ))}
+
+            <Card className="card--dashed">
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>
+                Neues Team-Ziel
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <input
+                  value={newTeamGoalTitle}
+                  onChange={(e) => setNewTeamGoalTitle(e.target.value)}
+                  placeholder="Team-Zielbeschreibung..."
+                  className="input"
+                  style={{ flex: 1, minWidth: 200 }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') addTeamGoal(); }}
+                />
+                <select
+                  value={newTeamGoalContribution}
+                  onChange={(e) => setNewTeamGoalContribution(e.target.value)}
+                  className="select"
+                >
+                  <option value="high">Hoch</option>
+                  <option value="medium">Mittel</option>
+                  <option value="low">Niedrig</option>
+                </select>
+                <button className="btn btn--primary" onClick={addTeamGoal}>+ Hinzufügen</button>
+              </div>
+            </Card>
           </motion.div>
         )}
 
