@@ -180,6 +180,7 @@ export default function App() {
             emp={selectedEmp}
             onBack={() => setSelectedId(null)}
             onUpdate={handleUpdate}
+            onDelete={handleDeleteEmployee}
             budget={budget}
             employees={employees}
           />

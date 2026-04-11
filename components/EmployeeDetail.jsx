@@ -44,7 +44,7 @@ const tabContent = {
   exit: { opacity: 0, y: -8, transition: { duration: 0.15 } },
 };
 
-export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employees }) {
+export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget, employees }) {
   const [activeTab, setActiveTab] = useState('goals');
   const [editingGoal, setEditingGoal] = useState(null);
   const [editGoalData, setEditGoalData] = useState(null);
@@ -184,7 +184,18 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, budget, employee
 
   return (
     <motion.div {...pageMotion} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <button className="btn btn--text" onClick={onBack}>← Zurück zum Dashboard</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button className="btn btn--text" onClick={onBack}>← Zurück zum Dashboard</button>
+        <button
+          className="btn btn--ghost"
+          style={{ color: 'var(--danger)', fontSize: 12 }}
+          onClick={() => {
+            if (confirm(`${emp.name} wirklich löschen?`)) onDelete(emp.id);
+          }}
+        >
+          Mitarbeiter löschen
+        </button>
+      </div>
 
       {/* Header */}
       <Card>
