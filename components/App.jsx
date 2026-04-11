@@ -7,6 +7,7 @@ import EmployeeDetail from './EmployeeDetail';
 
 export default function App() {
   const [employees, setEmployees] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [budget, setBudget] = useState(15000);
   const [loading, setLoading] = useState(true);
@@ -19,13 +20,16 @@ export default function App() {
   useEffect(() => {
     async function load() {
       try {
-        const [empRes, setRes] = await Promise.all([
+        const [empRes, rolesRes, setRes] = await Promise.all([
           fetch('/api/employees'),
+          fetch('/api/roles'),
           fetch('/api/settings'),
         ]);
         const empData = await empRes.json();
+        const rolesData = await rolesRes.json();
         const setData = await setRes.json();
         setEmployees(empData);
+        setRoles(rolesData);
         setBudget(setData.budget);
       } catch (err) {
         console.error('Failed to load data:', err);
@@ -64,6 +68,53 @@ export default function App() {
         body: JSON.stringify({ budget: newBudget }),
       }).catch((err) => console.error('Failed to save settings:', err));
     }, 300);
+  }, []);
+
+  // Role CRUD
+  const handleAddRole = useCallback(async (newRole) => {
+    try {
+      const res = await fetch('/api/roles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRole),
+      });
+      const created = await res.json();
+      setRoles((prev) => [...prev, created]);
+      return created;
+    } catch (err) {
+      console.error('Failed to create role:', err);
+    }
+  }, []);
+
+  const handleUpdateRole = useCallback(async (updated) => {
+    try {
+      const res = await fetch(`/api/roles/${updated.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      });
+      const saved = await res.json();
+      setRoles((prev) => prev.map((r) => (r.id === saved.id ? saved : r)));
+      // Update salaryBand/marketRate on employees with this role
+      setEmployees((prev) =>
+        prev.map((e) =>
+          e.role === saved.name
+            ? { ...e, salaryBand: saved.salaryBand, marketRate: saved.marketRate }
+            : e
+        )
+      );
+    } catch (err) {
+      console.error('Failed to update role:', err);
+    }
+  }, []);
+
+  const handleDeleteRole = useCallback(async (id) => {
+    try {
+      await fetch(`/api/roles/${id}`, { method: 'DELETE' });
+      setRoles((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      console.error('Failed to delete role:', err);
+    }
   }, []);
 
   // Add new employee via POST
@@ -136,9 +187,13 @@ export default function App() {
           <DashboardView
             key="dashboard"
             employees={employees}
+            roles={roles}
             onSelect={(emp) => setSelectedId(emp.id)}
             onAddEmployee={handleAddEmployee}
             onDeleteEmployee={handleDeleteEmployee}
+            onAddRole={handleAddRole}
+            onUpdateRole={handleUpdateRole}
+            onDeleteRole={handleDeleteRole}
             budget={budget}
             onBudgetChange={handleBudgetChange}
           />

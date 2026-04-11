@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "Senior Engineer",
+    "department": "Engineering",
+    "salaryBand": { "min": 70000, "mid": 82000, "max": 95000 },
+    "marketRate": 85000
+  },
+  {
+    "id": 2,
+    "name": "Product Manager",
+    "department": "Product",
+    "salaryBand": { "min": 65000, "mid": 78000, "max": 90000 },
+    "marketRate": 80000
+  },
+  {
+    "id": 3,
+    "name": "UX Designerin",
+    "department": "Design",
+    "salaryBand": { "min": 55000, "mid": 68000, "max": 80000 },
+    "marketRate": 70000
+  },
+  {
+    "id": 4,
+    "name": "DevOps Engineer",
+    "department": "Engineering",
+    "salaryBand": { "min": 65000, "mid": 78000, "max": 90000 },
+    "marketRate": 82000
+  }
+]

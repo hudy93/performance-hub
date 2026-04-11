@@ -39,3 +39,4 @@ next-env.d.ts
 # local data
 /data/employees.json
 /data/settings.json
+/data/roles.json

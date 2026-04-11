@@ -17,23 +17,30 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
 };
 
-const emptyForm = {
+const emptyEmpForm = {
   name: '',
-  role: '',
-  department: '',
+  roleId: '',
   currentSalary: '',
-  salaryBandMin: '',
-  salaryBandMid: '',
-  salaryBandMax: '',
-  marketRate: '',
   inflation: '3.2',
   performanceScore: '3.0',
 };
 
-export default function DashboardView({ employees, onSelect, onAddEmployee, onDeleteEmployee, budget, onBudgetChange }) {
+const emptyRoleForm = {
+  name: '',
+  department: '',
+  salaryBandMin: '',
+  salaryBandMid: '',
+  salaryBandMax: '',
+  marketRate: '',
+};
+
+export default function DashboardView({ employees, roles, onSelect, onAddEmployee, onDeleteEmployee, onAddRole, onUpdateRole, onDeleteRole, budget, onBudgetChange }) {
   const [editingBudget, setEditingBudget] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(emptyEmpForm);
+  const [showRoleManager, setShowRoleManager] = useState(false);
+  const [roleForm, setRoleForm] = useState(emptyRoleForm);
+  const [editingRoleId, setEditingRoleId] = useState(null);
 
   const avgScore = employees.reduce((s, e) => s + e.performanceScore, 0) / employees.length;
   const avgGoal = employees.reduce((s, e) => s + calcWeightedGoalScore(e.personalGoals), 0) / employees.length;
@@ -150,6 +157,128 @@ export default function DashboardView({ employees, onSelect, onAddEmployee, onDe
         </Card>
       </motion.div>
 
+      {/* Role management */}
+      <motion.div variants={fadeUp}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h3 className="section-title" style={{ margin: 0 }}>Rollen & Gehaltsbänder</h3>
+          <button
+            className="btn btn--ghost"
+            onClick={() => setShowRoleManager(!showRoleManager)}
+          >
+            {showRoleManager ? '✕ Schließen' : '⚙ Verwalten'}
+          </button>
+        </div>
+
+        {!showRoleManager && (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {roles.map((r) => (
+              <div key={r.id} style={{ padding: '6px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: 12 }}>
+                <span style={{ color: 'var(--text)', fontWeight: 500 }}>{r.name}</span>
+                <span style={{ color: 'var(--text-dim)', marginLeft: 8 }}>
+                  €{r.salaryBand.min.toLocaleString('de-DE')} – €{r.salaryBand.max.toLocaleString('de-DE')}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showRoleManager && (
+          <Card>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {roles.map((r) => {
+                const isEditing = editingRoleId === r.id;
+                if (isEditing) {
+                  return (
+                    <div key={r.id} style={{ padding: 12, background: 'var(--surface-hover)', borderRadius: 'var(--radius-sm)' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        <input className="input" placeholder="Rollenname" defaultValue={r.name} id={`role-name-${r.id}`} />
+                        <input className="input" placeholder="Abteilung" defaultValue={r.department} id={`role-dept-${r.id}`} />
+                        <input className="input" type="number" placeholder="Band Min" defaultValue={r.salaryBand.min} id={`role-min-${r.id}`} />
+                        <input className="input" type="number" placeholder="Band Mitte" defaultValue={r.salaryBand.mid} id={`role-mid-${r.id}`} />
+                        <input className="input" type="number" placeholder="Band Max" defaultValue={r.salaryBand.max} id={`role-max-${r.id}`} />
+                        <input className="input" type="number" placeholder="Marktwert" defaultValue={r.marketRate} id={`role-market-${r.id}`} />
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8, justifyContent: 'flex-end' }}>
+                        <button className="btn btn--ghost" onClick={() => setEditingRoleId(null)}>Abbrechen</button>
+                        <button className="btn btn--primary" onClick={() => {
+                          onUpdateRole({
+                            id: r.id,
+                            name: document.getElementById(`role-name-${r.id}`).value,
+                            department: document.getElementById(`role-dept-${r.id}`).value,
+                            salaryBand: {
+                              min: parseInt(document.getElementById(`role-min-${r.id}`).value),
+                              mid: parseInt(document.getElementById(`role-mid-${r.id}`).value),
+                              max: parseInt(document.getElementById(`role-max-${r.id}`).value),
+                            },
+                            marketRate: parseInt(document.getElementById(`role-market-${r.id}`).value),
+                          });
+                          setEditingRoleId(null);
+                        }}>Speichern</button>
+                      </div>
+                    </div>
+                  );
+                }
+                const empCount = employees.filter((e) => e.role === r.name).length;
+                return (
+                  <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--surface)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{r.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        {r.department} · €{r.salaryBand.min.toLocaleString('de-DE')} – €{r.salaryBand.max.toLocaleString('de-DE')} · Markt: €{r.marketRate.toLocaleString('de-DE')} · {empCount} Mitarbeiter
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button className="btn btn--ghost" onClick={() => setEditingRoleId(r.id)}>✎</button>
+                      <button
+                        className="btn btn--ghost"
+                        style={{ color: empCount > 0 ? 'var(--text-dim)' : 'var(--danger)' }}
+                        disabled={empCount > 0}
+                        title={empCount > 0 ? 'Rolle wird noch verwendet' : 'Rolle löschen'}
+                        onClick={() => onDeleteRole(r.id)}
+                      >✕</button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Add new role */}
+              <div style={{ padding: 12, borderTop: '1px solid var(--border)', marginTop: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>Neue Rolle anlegen</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <input className="input" placeholder="Rollenname" value={roleForm.name} onChange={(e) => setRoleForm({ ...roleForm, name: e.target.value })} />
+                  <input className="input" placeholder="Abteilung" value={roleForm.department} onChange={(e) => setRoleForm({ ...roleForm, department: e.target.value })} />
+                  <input className="input" type="number" placeholder="Band Min" value={roleForm.salaryBandMin} onChange={(e) => setRoleForm({ ...roleForm, salaryBandMin: e.target.value })} />
+                  <input className="input" type="number" placeholder="Band Mitte" value={roleForm.salaryBandMid} onChange={(e) => setRoleForm({ ...roleForm, salaryBandMid: e.target.value })} />
+                  <input className="input" type="number" placeholder="Band Max" value={roleForm.salaryBandMax} onChange={(e) => setRoleForm({ ...roleForm, salaryBandMax: e.target.value })} />
+                  <input className="input" type="number" placeholder="Marktwert" value={roleForm.marketRate} onChange={(e) => setRoleForm({ ...roleForm, marketRate: e.target.value })} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                  <button
+                    className="btn btn--primary"
+                    disabled={!roleForm.name || !roleForm.department || !roleForm.salaryBandMin || !roleForm.salaryBandMax}
+                    onClick={async () => {
+                      await onAddRole({
+                        name: roleForm.name,
+                        department: roleForm.department,
+                        salaryBand: {
+                          min: parseInt(roleForm.salaryBandMin),
+                          mid: parseInt(roleForm.salaryBandMid) || Math.round((parseInt(roleForm.salaryBandMin) + parseInt(roleForm.salaryBandMax)) / 2),
+                          max: parseInt(roleForm.salaryBandMax),
+                        },
+                        marketRate: parseInt(roleForm.marketRate) || Math.round(parseInt(roleForm.salaryBandMid || ((parseInt(roleForm.salaryBandMin) + parseInt(roleForm.salaryBandMax)) / 2)) * 1.05),
+                      });
+                      setRoleForm(emptyRoleForm);
+                    }}
+                  >
+                    Rolle anlegen
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+      </motion.div>
+
       <motion.div variants={fadeUp}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 className="section-title" style={{ margin: 0 }}>Mitarbeiter</h3>
@@ -161,59 +290,63 @@ export default function DashboardView({ employees, onSelect, onAddEmployee, onDe
           </button>
         </div>
 
-        {showAddForm && (
-          <Card className="card--dashed" style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 12 }}>
-              Neuen Mitarbeiter anlegen
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <input className="input" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-              <input className="input" placeholder="Rolle" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} />
-              <input className="input" placeholder="Abteilung" value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} />
-              <input className="input" type="number" placeholder="Aktuelles Gehalt" value={form.currentSalary} onChange={(e) => setForm({ ...form, currentSalary: e.target.value })} />
-              <input className="input" type="number" placeholder="Gehaltsband Min" value={form.salaryBandMin} onChange={(e) => setForm({ ...form, salaryBandMin: e.target.value })} />
-              <input className="input" type="number" placeholder="Gehaltsband Mitte" value={form.salaryBandMid} onChange={(e) => setForm({ ...form, salaryBandMid: e.target.value })} />
-              <input className="input" type="number" placeholder="Gehaltsband Max" value={form.salaryBandMax} onChange={(e) => setForm({ ...form, salaryBandMax: e.target.value })} />
-              <input className="input" type="number" placeholder="Marktwert" value={form.marketRate} onChange={(e) => setForm({ ...form, marketRate: e.target.value })} />
-              <input className="input" type="number" step="0.1" placeholder="Inflation %" value={form.inflation} onChange={(e) => setForm({ ...form, inflation: e.target.value })} />
-              <input className="input" type="number" step="0.1" min="1" max="5" placeholder="Performance Score (1-5)" value={form.performanceScore} onChange={(e) => setForm({ ...form, performanceScore: e.target.value })} />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-              <button
-                className="btn btn--primary"
-                disabled={!form.name || !form.role || !form.department || !form.currentSalary}
-                onClick={async () => {
-                  const initials = form.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
-                  const newEmp = {
-                    name: form.name,
-                    role: form.role,
-                    department: form.department,
-                    avatar: initials,
-                    currentSalary: parseInt(form.currentSalary),
-                    salaryBand: {
-                      min: parseInt(form.salaryBandMin) || parseInt(form.currentSalary) * 0.85,
-                      mid: parseInt(form.salaryBandMid) || parseInt(form.currentSalary) * 1.05,
-                      max: parseInt(form.salaryBandMax) || parseInt(form.currentSalary) * 1.22,
-                    },
-                    marketRate: parseInt(form.marketRate) || parseInt(form.currentSalary) * 1.08,
-                    inflation: parseFloat(form.inflation) || 3.2,
-                    personalGoals: [],
-                    teamGoals: [],
-                    extras: [],
-                    highlights: [],
-                    performanceScore: parseFloat(form.performanceScore) || 3.0,
-                    lastReview: new Date().toISOString().split('T')[0],
-                  };
-                  await onAddEmployee(newEmp);
-                  setForm(emptyForm);
-                  setShowAddForm(false);
-                }}
-              >
-                Mitarbeiter anlegen
-              </button>
-            </div>
-          </Card>
-        )}
+        {showAddForm && (() => {
+          const selectedRole = roles.find((r) => r.id === parseInt(form.roleId));
+          return (
+            <Card className="card--dashed" style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 12 }}>
+                Neuen Mitarbeiter anlegen
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <input className="input" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <select className="select" value={form.roleId} onChange={(e) => setForm({ ...form, roleId: e.target.value })}>
+                  <option value="">Rolle wählen...</option>
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>{r.name} ({r.department})</option>
+                  ))}
+                </select>
+                <input className="input" type="number" placeholder="Aktuelles Gehalt" value={form.currentSalary} onChange={(e) => setForm({ ...form, currentSalary: e.target.value })} />
+                <input className="input" type="number" step="0.1" placeholder="Inflation %" value={form.inflation} onChange={(e) => setForm({ ...form, inflation: e.target.value })} />
+                <input className="input" type="number" step="0.1" min="1" max="5" placeholder="Performance Score (1-5)" value={form.performanceScore} onChange={(e) => setForm({ ...form, performanceScore: e.target.value })} />
+              </div>
+              {selectedRole && (
+                <div style={{ marginTop: 10, padding: '8px 12px', background: 'var(--surface-hover)', borderRadius: 'var(--radius-sm)', fontSize: 12, color: 'var(--text-muted)' }}>
+                  Gehaltsband: €{selectedRole.salaryBand.min.toLocaleString('de-DE')} – €{selectedRole.salaryBand.max.toLocaleString('de-DE')} (Mitte: €{selectedRole.salaryBand.mid.toLocaleString('de-DE')}) · Marktwert: €{selectedRole.marketRate.toLocaleString('de-DE')}
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+                <button
+                  className="btn btn--primary"
+                  disabled={!form.name || !form.roleId || !form.currentSalary}
+                  onClick={async () => {
+                    const initials = form.name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
+                    const newEmp = {
+                      name: form.name,
+                      role: selectedRole.name,
+                      department: selectedRole.department,
+                      avatar: initials,
+                      currentSalary: parseInt(form.currentSalary),
+                      salaryBand: { ...selectedRole.salaryBand },
+                      marketRate: selectedRole.marketRate,
+                      inflation: parseFloat(form.inflation) || 3.2,
+                      personalGoals: [],
+                      teamGoals: [],
+                      extras: [],
+                      highlights: [],
+                      performanceScore: parseFloat(form.performanceScore) || 3.0,
+                      lastReview: new Date().toISOString().split('T')[0],
+                    };
+                    await onAddEmployee(newEmp);
+                    setForm(emptyEmpForm);
+                    setShowAddForm(false);
+                  }}
+                >
+                  Mitarbeiter anlegen
+                </button>
+              </div>
+            </Card>
+          );
+        })()}
 
         <div className="employee-list">
           {employees.map((emp) => {
