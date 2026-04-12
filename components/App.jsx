@@ -77,6 +77,20 @@ export default function App() {
     }, 300);
   }, [settings]);
 
+  const handleSettingsChange = useCallback((newSettings) => {
+    setSettings(newSettings);
+    setBudget(newSettings.budget);
+
+    if (budgetTimeoutRef.current) clearTimeout(budgetTimeoutRef.current);
+    budgetTimeoutRef.current = setTimeout(() => {
+      fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSettings),
+      }).catch((err) => console.error('Failed to save settings:', err));
+    }, 300);
+  }, []);
+
   // Role CRUD
   const handleAddRole = useCallback(async (newRole) => {
     try {
@@ -206,6 +220,8 @@ export default function App() {
             onDeleteRole={handleDeleteRole}
             budget={budget}
             onBudgetChange={handleBudgetChange}
+            settings={settings}
+            onSettingsChange={handleSettingsChange}
           />
         )}
       </AnimatePresence>
