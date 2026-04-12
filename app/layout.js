@@ -1,4 +1,5 @@
 import './globals.css';
+import SessionWrapper from '@/components/SessionWrapper';
 
 export const metadata = {
   title: 'PerformanceHub',
@@ -8,7 +9,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body>
+        <SessionWrapper>{children}</SessionWrapper>
+      </body>
     </html>
   );
 }
