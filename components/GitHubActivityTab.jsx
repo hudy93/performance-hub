@@ -28,8 +28,12 @@ export default function GitHubActivityTab({ emp, onUpdate }) {
         body: JSON.stringify(body),
       });
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Sync fehlgeschlagen');
+        let errorMsg = `Sync fehlgeschlagen (${res.status})`;
+        try {
+          const err = await res.json();
+          errorMsg = err.error || errorMsg;
+        } catch { /* response wasn't JSON */ }
+        throw new Error(errorMsg);
       }
       const newGithubData = await res.json();
       onUpdate({ ...emp, githubData: newGithubData });
