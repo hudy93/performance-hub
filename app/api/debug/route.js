@@ -1,33 +1,45 @@
 import { NextResponse } from 'next/server';
 import { Pool } from '@neondatabase/serverless';
+import PostgresAdapter from '@auth/pg-adapter';
 
 export async function GET() {
-  const envCheck = {
-    hasAuthSecret: !!process.env.AUTH_SECRET,
-    hasGithubId: !!process.env.AUTH_GITHUB_ID,
-    hasGithubSecret: !!process.env.AUTH_GITHUB_SECRET,
-    hasPostgresUrl: !!process.env.POSTGRES_URL,
-    nodeEnv: process.env.NODE_ENV,
-  };
+  const results = {};
 
   // Test DB connection
-  let dbCheck = {};
   try {
     const pool = new Pool({ connectionString: process.env.POSTGRES_URL });
+
+    // Test basic query
     const { rows } = await pool.query('SELECT COUNT(*) as count FROM users');
-    const { rows: tables } = await pool.query(`
-      SELECT table_name FROM information_schema.tables
-      WHERE table_schema = 'public' ORDER BY table_name
-    `);
-    dbCheck = {
-      connected: true,
-      userCount: rows[0].count,
-      tables: tables.map(t => t.table_name),
-    };
+    results.userCount = rows[0].count;
+
+    // Test the actual adapter
+    const adapter = PostgresAdapter(pool);
+    const user = await adapter.getUserByEmail?.('test-debug@nonexistent.com');
+    results.adapterWorks = true;
+    results.testUserFound = !!user;
+
+    // Check existing user
+    const { rows: users } = await pool.query('SELECT id, name, email FROM users LIMIT 1');
+    results.existingUser = users[0] || null;
+
+    // Check accounts table
+    const { rows: accounts } = await pool.query('SELECT "userId", provider, "providerAccountId" FROM accounts LIMIT 1');
+    results.existingAccount = accounts[0] || null;
+
     await pool.end();
   } catch (err) {
-    dbCheck = { connected: false, error: err.message };
+    results.error = err.message;
+    results.stack = err.stack?.split('\n').slice(0, 5);
   }
 
-  return NextResponse.json({ ...envCheck, db: dbCheck });
+  // Check NextAuth config
+  try {
+    const { auth } = await import('@/lib/auth');
+    results.authModuleLoads = true;
+  } catch (err) {
+    results.authModuleError = err.message;
+  }
+
+  return NextResponse.json(results);
 }
