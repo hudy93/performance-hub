@@ -223,11 +223,26 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
             <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: '2px 0 0' }}>
               {emp.role} · {emp.department}
             </p>
-            {emp.githubUsername && (
-              <p style={{ color: 'var(--text-dim)', fontSize: 11, margin: '2px 0 0' }}>
-                GitHub: @{emp.githubUsername}
-              </p>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+              <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>GitHub:</span>
+              <input
+                className="input"
+                style={{ width: 160, padding: '3px 8px', fontSize: 11 }}
+                placeholder="GitHub Username..."
+                defaultValue={emp.githubUsername || ''}
+                onBlur={(e) => {
+                  if (e.target.value !== (emp.githubUsername || '')) {
+                    onUpdate({ ...emp, githubUsername: e.target.value });
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    onUpdate({ ...emp, githubUsername: e.target.value });
+                    e.target.blur();
+                  }
+                }}
+              />
+            </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
               {emp.highlights.map((h, i) => (
                 <span key={i} className="badge badge--highlight">{h}</span>
