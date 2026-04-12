@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getEmployees, saveEmployees, getSettings } from '@/lib/data';
-import { execFileSync } from 'child_process';
 
-// Validate inputs to prevent injection — only allow safe characters
-function validateGhInput(value, label) {
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
+function validateInput(value, label) {
   if (!/^[a-zA-Z0-9._-]+$/.test(value)) {
     throw new Error(`Invalid ${label}: "${value}"`);
   }
@@ -17,25 +17,49 @@ function validateDate(value, label) {
   return value;
 }
 
-function searchPRs(githubOrg, username, startDate, endDate, option) {
-  const safeOrg = validateGhInput(githubOrg, 'githubOrg');
-  const safeUser = validateGhInput(username, 'username');
+async function searchPRs(githubOrg, username, startDate, endDate, option) {
+  const safeOrg = validateInput(githubOrg, 'githubOrg');
+  const safeUser = validateInput(username, 'username');
   const safeStart = validateDate(startDate, 'startDate');
   const safeEnd = validateDate(endDate, 'endDate');
-  const safeOption = validateGhInput(option, 'option');
 
-  const searchTerms = ['is:merged', 'is:pr', `user:${safeOrg}`, `merged:${safeStart}..${safeEnd}`, `${safeOption}:${safeUser}`];
-  try {
-    const result = execFileSync('gh', ['search', 'prs', '--limit', '500', '--json', 'repository,url', ...searchTerms], {
-      encoding: 'utf-8',
-      timeout: 30000,
-      env: { ...process.env, PATH: process.env.PATH + ':/opt/homebrew/bin:/usr/local/bin' },
-    });
-    return result ? JSON.parse(result) : [];
-  } catch (err) {
-    console.error(`gh search failed for ${safeOption}:${safeUser}:`, err.message);
-    return [];
+  // GitHub Search API: option is "assignee" or "reviewed-by"
+  const q = `is:merged is:pr user:${safeOrg} merged:${safeStart}..${safeEnd} ${option}:${safeUser}`;
+
+  const allItems = [];
+  let page = 1;
+  const perPage = 100;
+
+  while (true) {
+    const url = `https://api.github.com/search/issues?q=${encodeURIComponent(q)}&per_page=${perPage}&page=${page}`;
+    const headers = { 'Accept': 'application/vnd.github+json', 'User-Agent': 'performance-hub' };
+    if (GITHUB_TOKEN) {
+      headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+    }
+
+    const res = await fetch(url, { headers });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(`GitHub API error (${res.status}):`, text);
+      // Rate limit — return what we have so far
+      if (res.status === 403 || res.status === 429) break;
+      throw new Error(`GitHub API error: ${res.status}`);
+    }
+
+    const data = await res.json();
+    allItems.push(...data.items);
+
+    if (data.items.length < perPage || allItems.length >= data.total_count) break;
+    if (page >= 5) break; // Cap at 500 results
+    page++;
   }
+
+  // Extract repository name from html_url: https://github.com/org/repo/pull/123
+  return allItems.map(item => ({
+    url: item.html_url,
+    repository: { name: item.repository_url.split('/').pop() },
+  }));
 }
 
 // Split a date range into monthly chunks: [{start, end}, ...]
@@ -46,9 +70,7 @@ function getMonthlyRanges(startDate, endDate) {
 
   while (cursor < end) {
     const monthStart = new Date(cursor);
-    // Move to first day of next month
     const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
-    // Cap at endDate
     const periodEnd = monthEnd > end ? end : monthEnd;
 
     const fmt = (d) => d.toISOString().split('T')[0];
@@ -75,12 +97,10 @@ export async function POST(request, { params }) {
   }
 
   const emp = employees[index];
-  // Accept username from request body (in case save hasn't flushed yet) or from stored data
   const username = bodyUsername || emp.githubUsername;
   if (!username) {
     return NextResponse.json({ error: 'Employee has no githubUsername set' }, { status: 400 });
   }
-  // Persist the username if it came from the body
   if (bodyUsername && bodyUsername !== emp.githubUsername) {
     emp.githubUsername = bodyUsername;
   }
@@ -88,7 +108,6 @@ export async function POST(request, { params }) {
   const settings = await getSettings();
   const githubOrg = settings.githubOrg || 'collaborationFactory';
 
-  // Determine startDate
   const githubData = emp.githubData || { lastSyncedEnd: null, periods: [] };
   let startDate = requestedStartDate;
   if (!startDate && githubData.lastSyncedEnd) {
@@ -98,17 +117,15 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: 'startDate is required for initial sync' }, { status: 400 });
   }
 
-  // Split into monthly ranges and fetch each
   const monthlyRanges = getMonthlyRanges(startDate, endDate);
 
   try {
     for (const range of monthlyRanges) {
-      // Skip if we already have data for this exact period
       const exists = githubData.periods.some(p => p.startDate === range.start && p.endDate === range.end);
       if (exists) continue;
 
-      const assignedPRs = searchPRs(githubOrg, username, range.start, range.end, 'assignee');
-      const reviewedPRs = searchPRs(githubOrg, username, range.start, range.end, 'reviewed-by');
+      const assignedPRs = await searchPRs(githubOrg, username, range.start, range.end, 'assignee');
+      const reviewedPRs = await searchPRs(githubOrg, username, range.start, range.end, 'reviewed-by');
       const repositories = [...new Set(assignedPRs.map(pr => pr.repository.name))];
 
       githubData.periods.push({
