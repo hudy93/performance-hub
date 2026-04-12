@@ -613,7 +613,7 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
 
         {activeTab === 'github' && (
           <motion.div key="github" {...tabContent}>
-            <GitHubActivityTab emp={emp} onUpdate={onUpdate} />
+            <GitHubActivityTab emp={emp} onUpdate={onUpdate} settings={settings} />
           </motion.div>
         )}
 

@@ -3,7 +3,8 @@
 import { useState, useMemo } from 'react';
 import Card from './Card';
 
-export default function GitHubActivityTab({ emp, onUpdate }) {
+export default function GitHubActivityTab({ emp, onUpdate, settings }) {
+  const githubOrg = settings?.githubOrg || '';
   const githubData = emp.githubData || { periods: [], lastSyncedEnd: null };
   const hasPreviousData = githubData.periods.length > 0;
 
@@ -72,8 +73,15 @@ export default function GitHubActivityTab({ emp, onUpdate }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {/* GitHub Username */}
-      {!emp.githubUsername && (
+      {/* Warnings */}
+      {!githubOrg && (
+        <Card style={{ background: 'var(--warning-dim)', borderColor: 'rgba(251,191,36,0.3)' }}>
+          <div style={{ fontSize: 12, color: 'var(--warning)' }}>
+            Keine GitHub-Organisation konfiguriert. Bitte im Dashboard unter Einstellungen setzen.
+          </div>
+        </Card>
+      )}
+      {!emp.githubUsername && githubOrg && (
         <Card style={{ background: 'var(--warning-dim)', borderColor: 'rgba(251,191,36,0.3)' }}>
           <div style={{ fontSize: 12, color: 'var(--warning)' }}>
             Kein GitHub-Benutzername hinterlegt. Bitte im Mitarbeiterprofil setzen.
@@ -115,7 +123,7 @@ export default function GitHubActivityTab({ emp, onUpdate }) {
           <button
             className="btn btn--primary"
             onClick={handleSync}
-            disabled={syncing || !emp.githubUsername || (!hasPreviousData && !startDate)}
+            disabled={syncing || !emp.githubUsername || !githubOrg || (!hasPreviousData && !startDate)}
           >
             {syncing ? 'Synchronisiere...' : 'Sync starten'}
           </button>
