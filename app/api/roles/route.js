@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server';
-import { getRoles, saveRoles } from '@/lib/data';
+import { getAuthUser } from '@/lib/api-auth';
+import { getRoles, createRole } from '@/lib/db';
 
 export async function GET() {
-  const roles = await getRoles();
+  const { user, error } = await getAuthUser();
+  if (error) return error;
+
+  const roles = await getRoles(user.id);
   return NextResponse.json(roles);
 }
 
 export async function POST(request) {
+  const { user, error } = await getAuthUser();
+  if (error) return error;
+
   const body = await request.json();
-  const roles = await getRoles();
-
-  const maxId = roles.reduce((max, r) => Math.max(max, r.id), 0);
-  const newRole = { ...body, id: maxId + 1 };
-
-  roles.push(newRole);
-  await saveRoles(roles);
-
+  const newRole = await createRole(user.id, body);
   return NextResponse.json(newRole, { status: 201 });
 }
