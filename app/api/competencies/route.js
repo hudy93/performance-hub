@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getCompetencies } from '@/lib/data';
+import { getAuthUser } from '@/lib/api-auth';
+import { getCompetencies } from '@/lib/db';
 
 export async function GET() {
-  const competencies = await getCompetencies();
+  const { user, error } = await getAuthUser();
+  if (error) return error;
+
+  const competencies = await getCompetencies(user.id);
   return NextResponse.json(competencies);
 }

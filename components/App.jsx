@@ -5,7 +5,7 @@ import { AnimatePresence } from 'motion/react';
 import DashboardView from './DashboardView';
 import EmployeeDetail from './EmployeeDetail';
 
-export default function App() {
+export default function App({ user }) {
   const [employees, setEmployees] = useState([]);
   const [roles, setRoles] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -175,7 +175,19 @@ export default function App() {
             <div className="header-logo">◆</div>
             <h1 className="header-title">PerformanceHub</h1>
           </div>
-          <div className="header-period">Q1 2026</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {user?.image && (
+              <img src={user.image} alt="" style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)' }} />
+            )}
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{user?.name}</span>
+            <button
+              className="btn btn--ghost"
+              style={{ fontSize: 11 }}
+              onClick={() => { import('next-auth/react').then(m => m.signOut({ callbackUrl: '/' })); }}
+            >
+              Abmelden
+            </button>
+          </div>
         </header>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: 'var(--text-muted)' }}>
           Daten werden geladen...
@@ -191,7 +203,19 @@ export default function App() {
           <div className="header-logo">◆</div>
           <h1 className="header-title">PerformanceHub</h1>
         </div>
-        <div className="header-period">Q1 2026</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {user?.image && (
+            <img src={user.image} alt="" style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)' }} />
+          )}
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{user?.name}</span>
+          <button
+            className="btn btn--ghost"
+            style={{ fontSize: 11 }}
+            onClick={() => { import('next-auth/react').then(m => m.signOut({ callbackUrl: '/' })); }}
+          >
+            Abmelden
+          </button>
+        </div>
       </header>
 
       <AnimatePresence mode="wait">

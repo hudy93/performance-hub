@@ -1,31 +1,28 @@
 import { NextResponse } from 'next/server';
-import { getEmployees, saveEmployees } from '@/lib/data';
+import { getAuthUser } from '@/lib/api-auth';
+import { updateEmployee, deleteEmployee } from '@/lib/db';
 
 export async function PUT(request, { params }) {
+  const { user, error } = await getAuthUser();
+  if (error) return error;
+
   const { id } = await params;
   const body = await request.json();
-  const employees = await getEmployees();
-
-  const index = employees.findIndex((e) => e.id === parseInt(id));
-  if (index === -1) {
+  const updated = await updateEmployee(user.id, parseInt(id), body);
+  if (!updated) {
     return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
   }
-
-  employees[index] = { ...body, id: parseInt(id) };
-  await saveEmployees(employees);
-
-  return NextResponse.json(employees[index]);
+  return NextResponse.json(updated);
 }
 
 export async function DELETE(request, { params }) {
-  const { id } = await params;
-  const employees = await getEmployees();
+  const { user, error } = await getAuthUser();
+  if (error) return error;
 
-  const filtered = employees.filter((e) => e.id !== parseInt(id));
-  if (filtered.length === employees.length) {
+  const { id } = await params;
+  const deleted = await deleteEmployee(user.id, parseInt(id));
+  if (!deleted) {
     return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
   }
-
-  await saveEmployees(filtered);
   return NextResponse.json({ success: true });
 }

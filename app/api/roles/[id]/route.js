@@ -1,31 +1,28 @@
 import { NextResponse } from 'next/server';
-import { getRoles, saveRoles } from '@/lib/data';
+import { getAuthUser } from '@/lib/api-auth';
+import { updateRole, deleteRole } from '@/lib/db';
 
 export async function PUT(request, { params }) {
+  const { user, error } = await getAuthUser();
+  if (error) return error;
+
   const { id } = await params;
   const body = await request.json();
-  const roles = await getRoles();
-
-  const index = roles.findIndex((r) => r.id === parseInt(id));
-  if (index === -1) {
+  const updated = await updateRole(user.id, parseInt(id), body);
+  if (!updated) {
     return NextResponse.json({ error: 'Role not found' }, { status: 404 });
   }
-
-  roles[index] = { ...body, id: parseInt(id) };
-  await saveRoles(roles);
-
-  return NextResponse.json(roles[index]);
+  return NextResponse.json(updated);
 }
 
 export async function DELETE(request, { params }) {
-  const { id } = await params;
-  const roles = await getRoles();
+  const { user, error } = await getAuthUser();
+  if (error) return error;
 
-  const filtered = roles.filter((r) => r.id !== parseInt(id));
-  if (filtered.length === roles.length) {
+  const { id } = await params;
+  const deleted = await deleteRole(user.id, parseInt(id));
+  if (!deleted) {
     return NextResponse.json({ error: 'Role not found' }, { status: 404 });
   }
-
-  await saveRoles(filtered);
   return NextResponse.json({ success: true });
 }

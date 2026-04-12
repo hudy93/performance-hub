@@ -42,8 +42,8 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
   const [roleForm, setRoleForm] = useState(emptyRoleForm);
   const [editingRoleId, setEditingRoleId] = useState(null);
 
-  const avgScore = employees.reduce((s, e) => s + e.performanceScore, 0) / employees.length;
-  const avgGoal = employees.reduce((s, e) => s + calcWeightedGoalScore(e.personalGoals), 0) / employees.length;
+  const avgScore = employees.length > 0 ? employees.reduce((s, e) => s + e.performanceScore, 0) / employees.length : 0;
+  const avgGoal = employees.length > 0 ? employees.reduce((s, e) => s + calcWeightedGoalScore(e.personalGoals), 0) / employees.length : 0;
   const totalExtras = employees.reduce((s, e) => s + e.extras.length, 0);
   const topPerformer = [...employees].sort((a, b) => b.performanceScore - a.performanceScore)[0];
 
@@ -55,7 +55,7 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
     { label: 'Ø Performance', value: avgScore.toFixed(1), sub: '/ 5.0', color: 'var(--accent)' },
     { label: 'Ø Zielerreichung', value: `${Math.round(avgGoal)}%`, sub: 'gewichtet', color: 'var(--blue)' },
     { label: 'Extra-Leistungen', value: totalExtras, sub: 'erfasst', color: 'var(--purple)' },
-    { label: 'Top Performer', value: topPerformer.avatar, sub: topPerformer.name, color: 'var(--warning)' },
+    { label: 'Top Performer', value: topPerformer?.avatar || '—', sub: topPerformer?.name || 'Keine Mitarbeiter', color: 'var(--warning)' },
   ];
 
   return (
