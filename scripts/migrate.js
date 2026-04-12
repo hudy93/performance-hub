@@ -20,7 +20,7 @@ try {
 const { Pool } = pg;
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
-  ssl: process.env.POSTGRES_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
+  ssl: process.env.POSTGRES_URL?.includes('localhost') ? false : true,
 });
 
 const sql = async (strings, ...values) => {

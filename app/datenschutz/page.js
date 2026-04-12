@@ -1,9 +1,11 @@
+import Link from 'next/link';
+
 export const metadata = { title: 'Datenschutzerklärung — PerformanceHub' };
 
 export default function Datenschutz() {
   return (
     <div className="app-shell" style={{ maxWidth: 640, paddingTop: 48, paddingBottom: 64 }}>
-      <a href="/" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>← Zurück</a>
+      <Link href="/" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>← Zurück</Link>
       <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 400, color: 'var(--text)', margin: '24px 0 32px' }}>
         Datenschutzerklärung
       </h1>

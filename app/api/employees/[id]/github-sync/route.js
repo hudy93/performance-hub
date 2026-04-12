@@ -1,6 +1,28 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/api-auth';
-import { getEmployee, updateEmployee, getSettings } from '@/lib/db';
+import { getEmployee, updateEmployee, getSettings, getGitHubToken } from '@/lib/db';
+
+// Simple in-memory rate limiter
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_MAX = 5; // 5 requests per window
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+
+  entry.count++;
+  return true;
+}
 
 function validateInput(value, label) {
   if (!/^[a-zA-Z0-9._-]+$/.test(value)) {
@@ -72,7 +94,12 @@ function getMonthlyRanges(startDate, endDate) {
 }
 
 export async function POST(request, { params }) {
-  const { user, accessToken, error } = await getAuthUser();
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
+  const { user, error } = await getAuthUser();
   if (error) return error;
 
   const { id } = await params;
@@ -93,8 +120,8 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: 'Employee has no githubUsername set' }, { status: 400 });
   }
 
-  // Get the user's GitHub OAuth token
-  const token = accessToken;
+  // Get the user's GitHub OAuth token from the database
+  const token = await getGitHubToken(user.id);
 
   const settings = await getSettings(user.id);
   const githubOrg = settings.githubOrg || '';
@@ -132,7 +159,8 @@ export async function POST(request, { params }) {
       });
     }
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('POST /api/employees/[id]/github-sync failed:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 
   githubData.periods.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
