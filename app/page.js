@@ -1,27 +1,12 @@
-'use client';
+import ComingSoon from '@/components/ComingSoon';
+import LandingPageClient from '@/components/LandingPageClient';
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import LandingPage from '@/components/LandingPage';
+const isMaintenanceMode = process.env.MAINTENANCE_MODE === 'true';
 
 export default function Page() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (session) {
-      router.replace('/dashboard');
-    }
-  }, [session, router]);
-
-  if (status === 'loading' || session) {
-    return (
-      <div className="app-shell" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: 'var(--text-muted)' }}>
-        Laden...
-      </div>
-    );
+  if (isMaintenanceMode) {
+    return <ComingSoon />;
   }
 
-  return <LandingPage />;
+  return <LandingPageClient />;
 }

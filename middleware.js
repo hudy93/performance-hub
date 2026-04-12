@@ -1,7 +1,23 @@
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
+const isMaintenanceMode = process.env.MAINTENANCE_MODE === 'true';
+
 export async function middleware(request) {
+  const { pathname } = request.nextUrl;
+
+  if (isMaintenanceMode) {
+    if (
+      pathname.startsWith('/_next') ||
+      pathname.startsWith('/favicon') ||
+      pathname === '/'
+    ) {
+      return NextResponse.next();
+    }
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  // Normal auth middleware
   const isSecure = request.nextUrl.protocol === 'https:';
   const cookieName = isSecure ? '__Secure-authjs.session-token' : 'authjs.session-token';
 
@@ -13,7 +29,7 @@ export async function middleware(request) {
   });
 
   if (!token) {
-    if (request.nextUrl.pathname.startsWith('/api/')) {
+    if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     return NextResponse.redirect(new URL('/', request.url));
@@ -23,5 +39,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/api/employees/:path*', '/api/roles/:path*', '/api/settings/:path*', '/api/competencies/:path*'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

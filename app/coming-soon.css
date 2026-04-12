@@ -1,0 +1,115 @@
+.coming-soon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.coming-soon__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(74, 222, 128, 0.08) 0%,
+    rgba(96, 165, 250, 0.04) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: glow-pulse 6s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.coming-soon__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  animation: fade-up 1s ease-out;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.coming-soon__logo {
+  margin: 0 auto 28px;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--accent), var(--blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 40px rgba(74, 222, 128, 0.2),
+    0 0 80px rgba(96, 165, 250, 0.1);
+}
+
+.coming-soon__logo-icon {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--bg);
+  font-family: var(--font-body);
+}
+
+.coming-soon__title {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.coming-soon__title-accent {
+  color: var(--accent);
+}
+
+.coming-soon__subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--accent);
+  margin-top: 16px;
+  opacity: 0.85;
+}
+
+.coming-soon__divider {
+  width: 48px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--blue));
+  margin: 24px auto;
+  border-radius: 1px;
+  opacity: 0.5;
+}
+
+.coming-soon__text {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 320px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .coming-soon__title {
+    font-size: 36px;
+  }
+
+  .coming-soon__glow {
+    width: 400px;
+    height: 400px;
+  }
+}
