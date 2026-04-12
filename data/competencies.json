@@ -1,0 +1,254 @@
+[
+  {
+    "id": 1,
+    "name": "Testing & Quality",
+    "category": "Technology",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Possesses foundational knowledge of testing frameworks and test automation practices",
+      "Intermediate Engineer": "Demonstrates strong proficiency in testing frameworks and test automation practices",
+      "Senior Engineer": "Expert in testing across multiple layers including performance testing; establishes testing guidelines and quality standards within the team",
+      "Staff Engineer": "Establishes organizational quality standards and testing frameworks; creates company-wide quality practices, testing infrastructure, and drives quality culture across teams"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Development Tools & Frameworks",
+    "category": "Technology",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Uses standard development tools with support; operates development environments, version control, and CI/CD pipelines for basic workflows with guidance",
+      "Intermediate Engineer": "Works fluently with development tools; operates development environments, version control, CI/CD pipelines, and monitoring independently with effective troubleshooting",
+      "Senior Engineer": "Expert in development tools, CI/CD pipelines, monitoring, debugging, and performance tuning; designs optimized development processes that enhance team development experience",
+      "Staff Engineer": "Designs development frameworks and tooling for developers across teams; creates reusable libraries, internal tools, and automation that simplify workflows and improve developer experience organization-wide"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Code Quality & Design",
+    "category": "Technology",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Understands team coding conventions and applies them consistently. Follows code and design principles including clear naming, logical structure, and simplicity",
+      "Intermediate Engineer": "Produces clean, maintainable, and efficient code. Proactively identifies opportunities for improvement and suggests effective solutions to enhance code quality, performance, and team practices.",
+      "Senior Engineer": "Applies deep understanding of design principles and architectural patterns to produce scalable, maintainable code while proactively managing technical debt across large-scale codebases",
+      "Staff Engineer": "Establishes coding standards and design principles as a recognized authority; identifies cross-domain patterns to create reusable solutions that drive organizational impact"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Code Reviews",
+    "category": "Technology",
+    "tag": "RESPONSIBILITY",
+    "expectations": {
+      "Junior Engineer": "Requests code reviews for own work, reviews peers' code at a basic level, and asks for changes when issues are identified.",
+      "Intermediate Engineer": "Reviews code thoroughly to ensure production readiness including tests and coverage, provides constructive feedback to help peers improve.",
+      "Senior Engineer": "Ensures team adherence to coding standards and best practices through comprehensive code reviews, mentors developers on quality and design principles",
+      "Staff Engineer": "Defines and maintains code review standards across multiple teams, establishes quality gates and review processes, coaches teams on effective review practices."
+    }
+  },
+  {
+    "id": 5,
+    "name": "Architecture & Platform Expertise",
+    "category": "Technology",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Understands the high-level architecture of topics team is working on. Possesses basic knowledge of No-Code/Low-Code platforms and their fundamental capabilities.",
+      "Intermediate Engineer": "Understands and clearly explains the high-level architecture of team systems and their interconnections. Demonstrates good understanding of No-Code/Low-Code/Pro-Code approaches.",
+      "Senior Engineer": "Expert in team's tech stack with comprehensive No-Code/Low-Code/Pro-Code expertise; explains detailed architecture across systems and selects appropriate technologies and processes for each task",
+      "Staff Engineer": "Possesses deep expertise across multiple technical domains; defines cutting-edge development processes and identifies major technology shifts to drive organizational transformation"
+    }
+  },
+  {
+    "id": 6,
+    "name": "Technical Problem Solving",
+    "category": "Technology",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Identifies basic technical issues and can independently debug, implement, and test isolated changes with appropriate verification.",
+      "Intermediate Engineer": "Independently troubleshoots and resolves moderately complex technical problems while designing and implementing reliable, well-tested, and elegant solutions",
+      "Senior Engineer": "Solves complex technical problems through expert-level analysis and solutioning; designs comprehensive approaches and guides team through challenging issue resolution",
+      "Staff Engineer": "Tackles cross-team technical challenges by analyzing root causes across organizational boundaries and designing comprehensive solutions for interconnected problems"
+    }
+  },
+  {
+    "id": 7,
+    "name": "Take Feedback",
+    "category": "Open-mindedness & Willingness to Learn",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Receptive to feedback and asks clarifying questions. Accepts feedback gracefully.",
+      "Intermediate Engineer": "Actively integrates feedback into practice. Provides constructive feedback to peers. Mentors less-experienced members.",
+      "Senior Engineer": "Delivers effective feedback to cross-team members. Encourages feedback culture within sphere of influence.",
+      "Staff Engineer": "Acts as role model on IT org-level. Fosters organization-wide feedback culture and mentors others on feedback exchange effectively."
+    }
+  },
+  {
+    "id": 8,
+    "name": "Skill Improvement",
+    "category": "Open-mindedness & Willingness to Learn",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Demonstrates curiosity and eagerness to learn new technologies. Resolves problems independently but reaches out for help when needed.",
+      "Intermediate Engineer": "Works with leader to grow skills through reading and partnering with senior members. Quickly acquires new skills and applies them. Demonstrates learning agility.",
+      "Senior Engineer": "Actively engages in expanding scope beyond current role scope through add-ons and educational initiatives. Identifies learning needs and creates development plans aligned with industry standards.",
+      "Staff Engineer": "Elevates capabilities company-wide in their domain. Drives organizational learning and development strategy. Promotes continuous learning across teams."
+    }
+  },
+  {
+    "id": 9,
+    "name": "Embrace Mistakes",
+    "category": "Open-mindedness & Willingness to Learn",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Embraces own mistakes as source of learning. Asks questions despite knowledge gaps. Demonstrates curiosity and growth mindset.",
+      "Intermediate Engineer": "Extends learning mindset to team level. Team player who actively learns and observes team dynamics.",
+      "Senior Engineer": "Applies learning from team failures to drive innovation. Prepared to experiment and iterate based on lessons learned.",
+      "Staff Engineer": "Encourages organizations to be ambitious and prepared to learn from IT orga-level failures. Turns innovative ideas into reality. Proposes improvements and implements key innovations."
+    }
+  },
+  {
+    "id": 10,
+    "name": "Be Proactive",
+    "category": "Commitment",
+    "tag": "RESPONSIBILITY",
+    "expectations": {
+      "Junior Engineer": "Speaks up when others break working agreements. Questions team decisions if they disagree. Manages basic conflicts. No initiative management expected.",
+      "Intermediate Engineer": "Ensures task completion and actively pushes to meet sprint goals. Thoughtful about processes and proposes changes for team effectiveness. Delivers on commitments. Shows growing confidence in defending ideas with data and reasoning. Navigates team disagreements constructively. Contributes to initiative management. Starts to influence team practices and technical discussions.",
+      "Senior Engineer": "Raises issues early when seeing obstacles. Develops solutions beyond individual scope. Resolves cross-team issues proactively. Thinks in long term and balances pragmatism with long-term strategy. Leads initiatives and wants to implement key innovations. Manages conflicts in code reviews and technical discussions.",
+      "Staff Engineer": "Takes ownership of working with teams and driving IT org-level priorities. Proactively identifies risks, trade-offs, and mitigates them early. Aligns initiatives with organizational goals and oversees initiative effectiveness. Balances pragmatism with perfection, making trade-offs transparent. Thought leader sharing knowledge inside and outside company."
+    }
+  },
+  {
+    "id": 11,
+    "name": "Collaboration Model",
+    "category": "Commitment",
+    "tag": "RESPONSIBILITY",
+    "expectations": {
+      "Junior Engineer": "Positive and constructive in team interactions. Works effectively with other team members on tasks. Shows basic empathy and demonstrates good communication skills.",
+      "Intermediate Engineer": "Provides constructive feedback on team collaboration. Contributes to continuous improvement of processes and working model. Understands team dynamics and adapts response accordingly. Mentors less-experienced members within immediate team.",
+      "Senior Engineer": "Identifies and helps resolve cross-team dependencies and issues. Applies advanced emotional intelligence across teams. Mentors other members of IT organization.",
+      "Staff Engineer": "Fosters positive organizational culture. Facilitates cross-team ideation and establishes processes that turn innovative ideas into reality. Builds strong relationships across teams and drives cultural transformation."
+    }
+  },
+  {
+    "id": 12,
+    "name": "Positive Attitude",
+    "category": "Commitment",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Open-minded and demonstrates positive attitude to work and team. Adaptable and shows resilience. Accepts the way things are done. Engages in open communication and feedback.",
+      "Intermediate Engineer": "Maintains consistent positive attitude under normal work pressures. Strong problem-solving mindset. Team-oriented approach. Able to break down ambiguity into clear tasks.",
+      "Senior Engineer": "Sustains positive attitude across challenging situations. Recognized as approachable and supportive. Supports team morale.",
+      "Staff Engineer": "Inspires others through positive attitude and can-do mentality. Cultivates strong relationships across teams and elevates morale at organizational level. Inspires engineers across squads to adopt new practices and technologies."
+    }
+  },
+  {
+    "id": 13,
+    "name": "Task Completion & Accountability",
+    "category": "Commitment",
+    "tag": "RESPONSIBILITY",
+    "expectations": {
+      "Junior Engineer": "Completes tasks in a foreseeable timeframe and consistently delivers on them.",
+      "Intermediate Engineer": "Meets deadlines while contributing to milestones and communicates outcomes on time. Drives work tasks to completion and actively pushes to meet sprint goals.",
+      "Senior Engineer": "Ensures timely delivery of high-value work, balancing multiple tasks and priorities while optimizing personal time allocation.",
+      "Staff Engineer": "Defines and drives cross-team technical initiatives (e.g., SDK evolution, platform migration, scalability, security). Establishes technical vision across multiple teams."
+    }
+  },
+  {
+    "id": 14,
+    "name": "Technical Scope",
+    "category": "Scope & Scale",
+    "tag": "SCALE",
+    "expectations": {
+      "Junior Engineer": "Handles tasks in context of features or bugfixes independently with guidance.",
+      "Intermediate Engineer": "Understands the system, can implement tasks, and develop ideas. Manages individual tasks with minimal guidance, owning small to medium features and writing effective tests.",
+      "Senior Engineer": "Possesses strong technical skills, developing concepts, evaluating feasibility, and analyzing complex problems while ensuring maintainable, testable designs. Owns significant features and influences team practices.",
+      "Staff Engineer": "Leads technical projects, establishes standards, and identifies complex issues while designing innovative solutions to extend business capabilities and ensure sustainability."
+    }
+  },
+  {
+    "id": 15,
+    "name": "Business Scope",
+    "category": "Scope & Scale",
+    "tag": "SCALE",
+    "expectations": {
+      "Junior Engineer": "Possesses a basic understanding of IT and business priorities, as well as project goals.",
+      "Intermediate Engineer": "While implementing new features gains in-depth knowledge of technology and business. Prioritizes quality, connects technical decisions to business needs, and supports team members in these contexts.",
+      "Senior Engineer": "Collaborates with stakeholders to ensure technical solutions meet business needs while mentoring colleagues and influencing team culture for sustainable growth.",
+      "Staff Engineer": "Aligns large-scale technical strategies with business goals, representing IT in prioritization discussions and focusing on long-term organizational initiatives."
+    }
+  },
+  {
+    "id": 16,
+    "name": "Communication Skills",
+    "category": "Interpersonal Skills",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Demonstrates clear written and spoken communication. Practices active listening and asks clarifying questions. Communicates effectively with team members. English proficiency required.",
+      "Intermediate Engineer": "Presents technical ideas concisely to technical audiences. Maintains solution-focused communication with team members. Applies effective communication principles.",
+      "Senior Engineer": "Presents ideas and insights clearly to various audiences. Adapts communication style according to target audience. Explains complex problems and solutions to people inside and outside their domain of expertise. Presents ideas to larger audiences confidently.",
+      "Staff Engineer": "Consistently demonstrates excellent target-group-oriented communication. Acts as a role model for communication on IT org level. Speaks with facts and drives data-based decisions. Mentors others on communication skills."
+    }
+  },
+  {
+    "id": 17,
+    "name": "Collaboration & Teamwork",
+    "category": "Interpersonal Skills",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Works successfully with team members as an active team player. Demonstrates proactive collaboration within the team. Actively gathers information and learns from teammates.",
+      "Intermediate Engineer": "Collaborates effectively within and beyond the team (with QA, PO, Designers). Demonstrates proactive cross-team collaboration. Works fluently across team boundaries.",
+      "Senior Engineer": "Acts as collaboration facilitator/coordinator within the team. Demonstrates strong collaboration across roles and disciplines (PO, QA, DevOps, Designers, PM). Collaborates closely with product managers, designers, and stakeholders. Manages internal (operations & support) and external (customer) communication.",
+      "Staff Engineer": "Leads cross-functional strategic projects and strategic cross-team initiatives. Effectively deals with different personalities and working styles. Has profound knowledge of the company and clearly explains organizational details to others."
+    }
+  },
+  {
+    "id": 18,
+    "name": "Collaboration & Mentorship",
+    "category": "Interpersonal Skills",
+    "tag": "RESPONSIBILITY",
+    "expectations": {
+      "Junior Engineer": "Actively engages in understanding requirements and their impact on the team.",
+      "Intermediate Engineer": "Supports junior colleagues by providing guidance through pair programming and mentoring. Actively contributes in technical discussions and decisions.",
+      "Senior Engineer": "Coaches and mentors juniors and intermediates, shaping the growth of the team and supporting junior developers.",
+      "Staff Engineer": "Mentors Senior Engineers, builds and scales the technical leadership pipeline, and supports the growth of less experienced developers through mentorship and sharing knowledge."
+    }
+  },
+  {
+    "id": 19,
+    "name": "Critical Thinking & Contribution",
+    "category": "Team Contribution",
+    "tag": "SKILL",
+    "expectations": {
+      "Junior Engineer": "Maintains openness to different ideas while respectfully disagreeing when needed. Questions team decisions constructively and proposes alternatives without being dogmatic. Asks questions proactively to get help and clarification.",
+      "Intermediate Engineer": "Considers the impact of code changes on other teams, and informs them proactively. Questions team decisions constructively and proposes alternatives without being dogmatic.",
+      "Senior Engineer": "Raises issues early when they see obstacles to achieving a goal (individual, team or department), and works to find solutions",
+      "Staff Engineer": "Acts as role model on IT org-level. Fosters organization-wide feedback culture and mentors others on feedback exchange effectively."
+    }
+  },
+  {
+    "id": 20,
+    "name": "Process - Agile/Scrum",
+    "category": "Team Contribution",
+    "tag": "RESPONSIBILITY",
+    "expectations": {
+      "Junior Engineer": "Understands Scrum basics; participates reliably in all ceremonies as a team member. Keeps own work DoR/DoD-compliant; updates board daily; raises impediments early. Slices tasks with guidance; limits WIP; contributes at retros with at least one improvement idea. Adopts FAIL-Forward: surfaces mistakes quickly and turns them into learnings.",
+      "Intermediate Engineer": "Prepares stories with PO for own scope; writes/clarifies acceptance criteria independently. Proactively manages dependencies with peers; adjusts scope with PO. Proposes and runs small process experiments within the team (e.g., smaller batch). Supports the PO/SM when asked (e.g., time-boxing a stand-up), without owning facilitation as a role.",
+      "Senior Engineer": "Models agile engineering practices that enable flow (e.g., CI, feature toggles, trunk-friendly habits). Coaches teammates on slicing, readiness, and definition of done; improves working agreements with the team. Uses lightweight flow data (cycle time, throughput, WIP) to inform trade-offs and mid-sprint replans. Coordinates cross-team dependencies with peers; can co-facilitate a ceremony when the SM is absent. Installs a FAIL-Forward culture: blameless reviews, fast feedback, documented learnings.",
+      "Staff Engineer": "Co-designs the team-of-teams operating model with TLs/PMs/POs (cadences, DoR/DoD variants, WIP policies). Standardizes minimal shared metrics, keeping them lightweight. Removes systemic impediments beyond a single team; ensures learnings are captured and reused (FAIL-Forward at scale)"
+    }
+  },
+  {
+    "id": 21,
+    "name": "Problem Solving & Issue Handling",
+    "category": "Team Contribution",
+    "tag": "RESPONSIBILITY",
+    "expectations": {
+      "Junior Engineer": "Takes responsibility for their actions, acknowledges their own mistakes, and speaks up when others break working agreements.",
+      "Intermediate Engineer": "When finding an issue in another team, raises the issue skillfully with that team. Considers the impact of code changes on other teams and informs them proactively.",
+      "Senior Engineer": "Raises issues early when they see obstacles, drives incident handling in the team, and speaks up on broader issues beyond their own work such as processes, company issues, or large projects.",
+      "Staff Engineer": "Acts as a sparring partner for multiple squads and senior engineers, works as the last line of defence after ATB, and explores new technologies through POCs and prototypes."
+    }
+  }
+]
