@@ -24,9 +24,9 @@ function searchPRs(githubOrg, username, startDate, endDate, option) {
   const safeEnd = validateDate(endDate, 'endDate');
   const safeOption = validateGhInput(option, 'option');
 
-  const searchQuery = `is:merged is:pr user:${safeOrg} merged:${safeStart}..${safeEnd} ${safeOption}:${safeUser}`;
+  const searchTerms = ['is:merged', 'is:pr', `user:${safeOrg}`, `merged:${safeStart}..${safeEnd}`, `${safeOption}:${safeUser}`];
   try {
-    const result = execFileSync('gh', ['search', 'prs', '--limit', '500', '--json', 'repository,url', searchQuery], {
+    const result = execFileSync('gh', ['search', 'prs', '--limit', '500', '--json', 'repository,url', ...searchTerms], {
       encoding: 'utf-8',
       timeout: 30000,
       env: { ...process.env, PATH: process.env.PATH + ':/opt/homebrew/bin:/usr/local/bin' },
