@@ -1,6 +1,40 @@
-import { sql } from '@vercel/postgres';
+import pg from 'pg';
 import { readFile } from 'fs/promises';
 import path from 'path';
+
+// Load .env.local manually since this runs outside Next.js
+const envPath = path.join(process.cwd(), '.env.local');
+try {
+  const envContent = await readFile(envPath, 'utf-8');
+  for (const line of envContent.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIndex = trimmed.indexOf('=');
+    if (eqIndex === -1) continue;
+    const key = trimmed.slice(0, eqIndex);
+    const value = trimmed.slice(eqIndex + 1);
+    if (!process.env[key]) process.env[key] = value;
+  }
+} catch { /* .env.local may not exist in production */ }
+
+const { Pool } = pg;
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: process.env.POSTGRES_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
+});
+
+const sql = async (strings, ...values) => {
+  let query = '';
+  const params = [];
+  for (let i = 0; i < strings.length; i++) {
+    query += strings[i];
+    if (i < values.length) {
+      params.push(values[i]);
+      query += `$${params.length}`;
+    }
+  }
+  return pool.query(query, params);
+};
 
 async function migrate() {
   console.log('Creating tables...');
@@ -208,7 +242,10 @@ async function migrate() {
   console.log('Migration complete.');
 }
 
-migrate().catch(err => {
-  console.error('Migration failed:', err);
-  process.exit(1);
-});
+migrate()
+  .then(() => pool.end())
+  .catch(err => {
+    console.error('Migration failed:', err);
+    pool.end();
+    process.exit(1);
+  });
