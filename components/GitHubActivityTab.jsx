@@ -40,10 +40,10 @@ export default function GitHubActivityTab({ emp, onUpdate }) {
     }
   };
 
-  // Filter periods
+  // Filter periods by their startDate (which month they represent)
   const filteredPeriods = useMemo(() => {
     return githubData.periods.filter(p => {
-      if (filterFrom && p.endDate < filterFrom) return false;
+      if (filterFrom && p.startDate < filterFrom) return false;
       if (filterTo && p.startDate > filterTo) return false;
       return true;
     });
