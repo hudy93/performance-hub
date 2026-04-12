@@ -10,6 +10,8 @@ export default function App() {
   const [roles, setRoles] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [budget, setBudget] = useState(15000);
+  const [competencies, setCompetencies] = useState([]);
+  const [settings, setSettings] = useState({ budget: 15000, githubOrg: 'collaborationFactory' });
   const [loading, setLoading] = useState(true);
 
   const saveTimeoutRef = useRef(null);
@@ -20,17 +22,21 @@ export default function App() {
   useEffect(() => {
     async function load() {
       try {
-        const [empRes, rolesRes, setRes] = await Promise.all([
+        const [empRes, rolesRes, setRes, compRes] = await Promise.all([
           fetch('/api/employees'),
           fetch('/api/roles'),
           fetch('/api/settings'),
+          fetch('/api/competencies'),
         ]);
         const empData = await empRes.json();
         const rolesData = await rolesRes.json();
         const setData = await setRes.json();
+        const compData = await compRes.json();
         setEmployees(empData);
         setRoles(rolesData);
+        setSettings(setData);
         setBudget(setData.budget);
+        setCompetencies(compData);
       } catch (err) {
         console.error('Failed to load data:', err);
       } finally {
@@ -58,6 +64,7 @@ export default function App() {
   // Auto-save budget (debounced 300ms)
   const handleBudgetChange = useCallback((newBudget) => {
     setBudget(newBudget);
+    setSettings(prev => ({ ...prev, budget: newBudget }));
 
     if (!initialLoadDone.current) return;
     if (budgetTimeoutRef.current) clearTimeout(budgetTimeoutRef.current);
@@ -65,7 +72,21 @@ export default function App() {
       fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ budget: newBudget }),
+        body: JSON.stringify({ ...settings, budget: newBudget }),
+      }).catch((err) => console.error('Failed to save settings:', err));
+    }, 300);
+  }, [settings]);
+
+  const handleSettingsChange = useCallback((newSettings) => {
+    setSettings(newSettings);
+    setBudget(newSettings.budget);
+
+    if (budgetTimeoutRef.current) clearTimeout(budgetTimeoutRef.current);
+    budgetTimeoutRef.current = setTimeout(() => {
+      fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSettings),
       }).catch((err) => console.error('Failed to save settings:', err));
     }, 300);
   }, []);
@@ -183,6 +204,8 @@ export default function App() {
             onDelete={handleDeleteEmployee}
             budget={budget}
             employees={employees}
+            competencies={competencies}
+            settings={settings}
           />
         ) : (
           <DashboardView
@@ -197,6 +220,8 @@ export default function App() {
             onDeleteRole={handleDeleteRole}
             budget={budget}
             onBudgetChange={handleBudgetChange}
+            settings={settings}
+            onSettingsChange={handleSettingsChange}
           />
         )}
       </AnimatePresence>

@@ -10,9 +10,45 @@
     "marketRate": 85000,
     "inflation": 3.2,
     "personalGoals": [
-      { "id": 1, "title": "AWS Solutions Architect Zertifizierung", "measurable": "Prüfung bestanden mit Score >800", "deadline": "2026-06-30", "progress": 85, "weight": 25, "status": "on-track" },
-      { "id": 2, "title": "3 Tech-Talks halten", "measurable": "3 Talks gehalten, mind. 20 Teilnehmer pro Talk", "deadline": "2026-09-30", "progress": 66, "weight": 15, "status": "on-track" },
-      { "id": 3, "title": "Mentoring von 2 Junioren", "measurable": "2 Junioren bestehen Probezeit-Review", "deadline": "2026-03-31", "progress": 100, "weight": 20, "status": "completed" }
+      {
+        "id": 1,
+        "title": "AWS Solutions Architect Zertifizierung",
+        "why": "Cloud-Expertise ist strategisch wichtig für das Team. Laura kann als zertifizierte Architektin fundierte Infrastruktur-Entscheidungen treffen und das Team in Cloud-Themen anleiten.",
+        "specific": "AWS Solutions Architect Professional Zertifizierung ablegen und bestehen.",
+        "measurable": "Prüfung bestanden mit Score >800",
+        "achievable": "Laura arbeitet bereits täglich mit AWS und hat die Associate-Zertifizierung. Die Professional-Prüfung baut auf vorhandenem Wissen auf.",
+        "relevant": "Stärkt die Cloud-Kompetenz im Team und ermöglicht fundierte Architekturentscheidungen bei der laufenden Cloud-Migration.",
+        "timeBound": "Prüfung bis Ende Juni 2026 ablegen",
+        "progress": 85,
+        "weight": 25,
+        "status": "on-track"
+      },
+      {
+        "id": 2,
+        "title": "3 Tech-Talks halten",
+        "why": "Wissenstransfer innerhalb der Organisation fördern und Lauras Sichtbarkeit als technische Führungsperson stärken.",
+        "specific": "3 interne Tech-Talks zu relevanten Engineering-Themen halten, jeweils mit mindestens 20 Teilnehmern.",
+        "measurable": "3 Talks gehalten, mind. 20 Teilnehmer pro Talk",
+        "achievable": "Laura hat bereits einen Talk gehalten und positives Feedback erhalten. Die Infrastruktur für interne Talks existiert.",
+        "relevant": "Fördert Wissenstransfer und positioniert Laura als technische Ansprechpartnerin über das Team hinaus.",
+        "timeBound": "Alle 3 Talks bis Ende September 2026",
+        "progress": 66,
+        "weight": 15,
+        "status": "on-track"
+      },
+      {
+        "id": 3,
+        "title": "Mentoring von 2 Junioren",
+        "why": "Junior-Entwickler brauchen strukturierte Begleitung, um produktiv zu werden. Laura hat die Erfahrung und das Standing, effektives Mentoring zu leisten.",
+        "specific": "Zwei Junior-Entwickler durch strukturiertes Mentoring begleiten, sodass beide ihr Probezeit-Review bestehen.",
+        "measurable": "2 Junioren bestehen Probezeit-Review",
+        "achievable": "Beide Junioren sind bereits im Team und Laura arbeitet regelmäßig mit ihnen zusammen.",
+        "relevant": "Stärkt die Teamstabilität und reduziert den Bus-Faktor bei kritischen Komponenten.",
+        "timeBound": "Probezeit-Reviews bis Ende März 2026 abgeschlossen",
+        "progress": 100,
+        "weight": 20,
+        "status": "completed"
+      }
     ],
     "teamGoals": [
       { "id": 1, "title": "System-Latenz um 40% reduzieren", "measurable": "P95 Latenz < 120ms (aktuell 200ms)", "deadline": "2026-06-30", "progress": 72, "contribution": "high" },
@@ -25,7 +61,19 @@
     ],
     "highlights": ["Teamübergreifende Zusammenarbeit", "Proaktive Problemlösung", "Wissenstransfer"],
     "performanceScore": 4.2,
-    "lastReview": "2025-10-15"
+    "lastReview": "2025-10-15",
+    "githubUsername": "",
+    "githubData": null,
+    "competencyAssessments": [
+      { "competencyId": 3, "met": true, "isTarget": false, "milestones": [] },
+      { "competencyId": 5, "met": true, "isTarget": false, "milestones": [] },
+      { "competencyId": 6, "met": true, "isTarget": false, "milestones": [] },
+      { "competencyId": 10, "met": false, "isTarget": true, "milestones": [
+        { "id": 1, "title": "Cross-Team Initiative leiten", "status": "pending", "dueDate": "2026-09-30" },
+        { "id": 2, "title": "Technische Entscheidung in fremdem Team vertreten", "status": "pending", "dueDate": "2026-06-30" }
+      ]},
+      { "competencyId": 17, "met": true, "isTarget": false, "milestones": [] }
+    ]
   },
   {
     "id": 2,
@@ -38,9 +86,45 @@
     "marketRate": 80000,
     "inflation": 3.2,
     "personalGoals": [
-      { "id": 1, "title": "Product Analytics Framework aufbauen", "measurable": "Dashboard live mit 5 Core-Metriken, wöchentlich genutzt", "deadline": "2026-06-30", "progress": 60, "weight": 30, "status": "at-risk" },
-      { "id": 2, "title": "Stakeholder-NPS auf 8+ bringen", "measurable": "NPS-Score >= 8.0 in quartalsweiser Umfrage", "deadline": "2026-09-30", "progress": 45, "weight": 25, "status": "behind" },
-      { "id": 3, "title": "OKR-Prozess einführen", "measurable": "3 Zyklen durchgeführt, Retro dokumentiert", "deadline": "2026-03-31", "progress": 100, "weight": 20, "status": "completed" }
+      {
+        "id": 1,
+        "title": "Product Analytics Framework aufbauen",
+        "why": "Datengetriebene Entscheidungen sind derzeit nicht systematisch möglich. Ein Analytics-Framework gibt dem Produktteam objektive Grundlagen für Priorisierungen.",
+        "specific": "Ein Product Analytics Dashboard aufbauen mit 5 Core-Metriken, das wöchentlich vom Produktteam genutzt wird.",
+        "measurable": "Dashboard live mit 5 Core-Metriken, wöchentlich genutzt",
+        "achievable": "Die Datenquellen existieren bereits, es fehlt die Zusammenführung und Visualisierung. Tools sind evaluiert.",
+        "relevant": "Ermöglicht evidenzbasierte Produktentscheidungen statt Bauchgefühl und verbessert die Kommunikation mit Stakeholdern.",
+        "timeBound": "Dashboard live und in regelmäßiger Nutzung bis Ende Juni 2026",
+        "progress": 60,
+        "weight": 30,
+        "status": "at-risk"
+      },
+      {
+        "id": 2,
+        "title": "Stakeholder-NPS auf 8+ bringen",
+        "why": "Die Zusammenarbeit mit Stakeholdern wurde als verbesserungswürdig identifiziert. Ein höherer NPS zeigt bessere Alignment und Zufriedenheit.",
+        "specific": "Den internen Stakeholder-NPS durch verbesserte Kommunikation und Erwartungsmanagement auf 8.0 oder höher steigern.",
+        "measurable": "NPS-Score >= 8.0 in quartalsweiser Umfrage",
+        "achievable": "Aktueller NPS liegt bei 6.5. Durch regelmäßige Stakeholder-Updates und bessere Roadmap-Transparenz ist eine Steigerung realistisch.",
+        "relevant": "Bessere Stakeholder-Beziehungen beschleunigen Entscheidungsprozesse und reduzieren Scope-Konflikte.",
+        "timeBound": "NPS >= 8.0 in der Q3 2026 Umfrage",
+        "progress": 45,
+        "weight": 25,
+        "status": "behind"
+      },
+      {
+        "id": 3,
+        "title": "OKR-Prozess einführen",
+        "why": "Dem Team fehlt ein strukturierter Rahmen für Zielsetzung und -verfolgung. OKRs schaffen Transparenz und Alignment.",
+        "specific": "Einen vollständigen OKR-Prozess einführen und 3 Zyklen durchführen mit dokumentierter Retrospektive.",
+        "measurable": "3 Zyklen durchgeführt, Retro dokumentiert",
+        "achievable": "Erste OKR-Schulungen sind erfolgt und das Management unterstützt die Einführung.",
+        "relevant": "OKRs schaffen teamübergreifendes Alignment und machen Fortschritt messbar.",
+        "timeBound": "3 vollständige OKR-Zyklen bis Ende März 2026",
+        "progress": 100,
+        "weight": 20,
+        "status": "completed"
+      }
     ],
     "teamGoals": [
       { "id": 1, "title": "Feature-Adoption Rate +30%", "measurable": "Adoption Rate steigt von 40% auf 52%", "deadline": "2026-09-30", "progress": 55, "contribution": "high" },
@@ -52,7 +136,16 @@
     ],
     "highlights": ["Kundenorientierung", "Strukturiertes Arbeiten"],
     "performanceScore": 3.5,
-    "lastReview": "2025-10-15"
+    "lastReview": "2025-10-15",
+    "githubUsername": "",
+    "githubData": null,
+    "competencyAssessments": [
+      { "competencyId": 16, "met": true, "isTarget": false, "milestones": [] },
+      { "competencyId": 12, "met": false, "isTarget": true, "milestones": [
+        { "id": 1, "title": "Team-Motivation nach gescheitertem Sprint wiederherstellen", "status": "done", "dueDate": "2026-03-31" },
+        { "id": 2, "title": "Positive Retrospektive-Kultur etablieren", "status": "pending", "dueDate": "2026-06-30" }
+      ]}
+    ]
   },
   {
     "id": 3,
@@ -65,9 +158,45 @@
     "marketRate": 70000,
     "inflation": 3.2,
     "personalGoals": [
-      { "id": 1, "title": "Design System v2.0 launchen", "measurable": "Alle 40 Komponenten migriert, Storybook live", "deadline": "2026-04-30", "progress": 95, "weight": 35, "status": "on-track" },
-      { "id": 2, "title": "Usability Testing Prozess etablieren", "measurable": "Prozess dokumentiert, 3 Tests durchgeführt", "deadline": "2026-03-31", "progress": 100, "weight": 25, "status": "completed" },
-      { "id": 3, "title": "Figma-to-Code Workflow optimieren", "measurable": "Handoff-Zeit von 3 Tagen auf 1 Tag reduziert", "deadline": "2026-09-30", "progress": 70, "weight": 15, "status": "on-track" }
+      {
+        "id": 1,
+        "title": "Design System v2.0 launchen",
+        "why": "Das aktuelle Design System ist veraltet und inkonsistent. Ein modernisiertes System beschleunigt die Entwicklung und verbessert die UX-Konsistenz.",
+        "specific": "Alle 40 Komponenten auf das neue Design System migrieren und in Storybook dokumentiert bereitstellen.",
+        "measurable": "Alle 40 Komponenten migriert, Storybook live",
+        "achievable": "35 von 40 Komponenten sind bereits migriert. Die verbleibenden 5 sind identifiziert.",
+        "relevant": "Ein aktuelles Design System ist die Grundlage für konsistente UX und effiziente Entwicklung.",
+        "timeBound": "Launch bis Ende April 2026",
+        "progress": 95,
+        "weight": 35,
+        "status": "on-track"
+      },
+      {
+        "id": 2,
+        "title": "Usability Testing Prozess etablieren",
+        "why": "UX-Entscheidungen basieren derzeit auf Annahmen. Strukturiertes Usability Testing liefert Evidenz für Designentscheidungen.",
+        "specific": "Einen dokumentierten Usability-Testing-Prozess etablieren und mindestens 3 Tests erfolgreich durchführen.",
+        "measurable": "Prozess dokumentiert, 3 Tests durchgeführt",
+        "achievable": "Tools sind evaluiert, Budget ist genehmigt. Sarah hat Erfahrung mit Usability Testing aus früheren Rollen.",
+        "relevant": "Verbessert die Qualität von Designentscheidungen und reduziert kostspielige Nachbesserungen.",
+        "timeBound": "Prozess etabliert und 3 Tests abgeschlossen bis Ende März 2026",
+        "progress": 100,
+        "weight": 25,
+        "status": "completed"
+      },
+      {
+        "id": 3,
+        "title": "Figma-to-Code Workflow optimieren",
+        "why": "Der aktuelle Handoff dauert 3 Tage und verursacht häufig Missverständnisse zwischen Design und Entwicklung.",
+        "specific": "Den Design-to-Code Handoff-Prozess optimieren, sodass die durchschnittliche Handoff-Zeit von 3 Tagen auf 1 Tag sinkt.",
+        "measurable": "Handoff-Zeit von 3 Tagen auf 1 Tag reduziert",
+        "achievable": "Durch bessere Figma-Struktur und automatisierte Exporte ist eine deutliche Beschleunigung möglich.",
+        "relevant": "Schnellerer Handoff beschleunigt die Feature-Entwicklung und reduziert Kommunikationsaufwand.",
+        "timeBound": "Neuer Workflow implementiert bis Ende September 2026",
+        "progress": 70,
+        "weight": 15,
+        "status": "on-track"
+      }
     ],
     "teamGoals": [
       { "id": 1, "title": "User Satisfaction Score >4.5", "measurable": "In-App Survey Score >= 4.5/5.0", "deadline": "2026-09-30", "progress": 88, "contribution": "high" },
@@ -80,7 +209,17 @@
     ],
     "highlights": ["Exzellente Qualität", "Teamkultur-Beitrag", "Eigeninitiative", "Accessibility-Champion"],
     "performanceScore": 4.6,
-    "lastReview": "2025-10-15"
+    "lastReview": "2025-10-15",
+    "githubUsername": "",
+    "githubData": null,
+    "competencyAssessments": [
+      { "competencyId": 17, "met": true, "isTarget": false, "milestones": [] },
+      { "competencyId": 18, "met": true, "isTarget": false, "milestones": [] },
+      { "competencyId": 14, "met": false, "isTarget": true, "milestones": [
+        { "id": 1, "title": "Eigenständig Design-System-Architektur dokumentieren", "status": "done", "dueDate": "2026-03-31" },
+        { "id": 2, "title": "Component-Library Ownership übernehmen", "status": "pending", "dueDate": "2026-09-30" }
+      ]}
+    ]
   },
   {
     "id": 4,
@@ -93,9 +232,45 @@
     "marketRate": 82000,
     "inflation": 3.2,
     "personalGoals": [
-      { "id": 1, "title": "Kubernetes Migration abschließen", "measurable": "Alle 12 Services auf K8s, Staging + Prod", "deadline": "2026-06-30", "progress": 40, "weight": 35, "status": "behind" },
-      { "id": 2, "title": "Disaster Recovery Plan erstellen", "measurable": "Plan dokumentiert, 1 DR-Drill erfolgreich durchgeführt", "deadline": "2026-09-30", "progress": 30, "weight": 25, "status": "at-risk" },
-      { "id": 3, "title": "Monitoring-Dashboard aufbauen", "measurable": "Dashboard mit 10 Core-Metriken, Alerting konfiguriert", "deadline": "2026-04-30", "progress": 80, "weight": 15, "status": "on-track" }
+      {
+        "id": 1,
+        "title": "Kubernetes Migration abschließen",
+        "why": "Die aktuelle VM-basierte Infrastruktur skaliert schlecht und ist teuer im Betrieb. Kubernetes ermöglicht Auto-Scaling und vereinfacht Deployments.",
+        "specific": "Alle 12 Microservices auf Kubernetes migrieren, sowohl in Staging als auch in Production.",
+        "measurable": "Alle 12 Services auf K8s, Staging + Prod",
+        "achievable": "4 Services sind bereits migriert. Die verbleibenden 8 folgen dem etablierten Migrations-Playbook.",
+        "relevant": "Kubernetes ist die strategische Plattform für die nächsten 3 Jahre. Die Migration ist Voraussetzung für weitere Automatisierung.",
+        "timeBound": "Alle Services migriert bis Ende Juni 2026",
+        "progress": 40,
+        "weight": 35,
+        "status": "behind"
+      },
+      {
+        "id": 2,
+        "title": "Disaster Recovery Plan erstellen",
+        "why": "Es gibt keinen dokumentierten DR-Plan. Im Ernstfall wäre die Wiederherstellung chaotisch und zeitintensiv.",
+        "specific": "Einen vollständigen Disaster Recovery Plan dokumentieren und mindestens einen DR-Drill erfolgreich durchführen.",
+        "measurable": "Plan dokumentiert, 1 DR-Drill erfolgreich durchgeführt",
+        "achievable": "Die meisten Recovery-Prozeduren existieren informell. Sie müssen dokumentiert und getestet werden.",
+        "relevant": "Business Continuity ist eine Compliance-Anforderung und ein Risiko für das gesamte Unternehmen.",
+        "timeBound": "DR-Plan dokumentiert und Drill durchgeführt bis Ende September 2026",
+        "progress": 30,
+        "weight": 25,
+        "status": "at-risk"
+      },
+      {
+        "id": 3,
+        "title": "Monitoring-Dashboard aufbauen",
+        "why": "Ohne zentrales Monitoring werden Probleme oft erst durch Nutzerbeschwerden erkannt. Proaktives Monitoring verkürzt die Reaktionszeit.",
+        "specific": "Ein zentrales Monitoring-Dashboard mit 10 Core-Metriken aufbauen und Alerting für kritische Schwellwerte konfigurieren.",
+        "measurable": "Dashboard mit 10 Core-Metriken, Alerting konfiguriert",
+        "achievable": "Prometheus und Grafana sind bereits installiert. Es fehlt die Dashboard-Konfiguration und Alert-Rules.",
+        "relevant": "Zentrales Monitoring ist Voraussetzung für den 99.9% Uptime-Zielwert des Teams.",
+        "timeBound": "Dashboard live und Alerting aktiv bis Ende April 2026",
+        "progress": 80,
+        "weight": 15,
+        "status": "on-track"
+      }
     ],
     "teamGoals": [
       { "id": 1, "title": "System-Latenz um 40% reduzieren", "measurable": "P95 Latenz < 120ms (aktuell 200ms)", "deadline": "2026-06-30", "progress": 72, "contribution": "low" },
@@ -106,6 +281,15 @@
     ],
     "highlights": ["Zuverlässigkeit in Krisen"],
     "performanceScore": 2.8,
-    "lastReview": "2025-10-15"
+    "lastReview": "2025-10-15",
+    "githubUsername": "",
+    "githubData": null,
+    "competencyAssessments": [
+      { "competencyId": 1, "met": false, "isTarget": true, "milestones": [
+        { "id": 1, "title": "Integration Tests für alle migrierten Services", "status": "pending", "dueDate": "2026-06-30" },
+        { "id": 2, "title": "Testabdeckung auf 70% bringen", "status": "pending", "dueDate": "2026-09-30" }
+      ]},
+      { "competencyId": 6, "met": true, "isTarget": false, "milestones": [] }
+    ]
   }
 ]

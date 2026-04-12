@@ -8,6 +8,9 @@ import StatusBadge from './StatusBadge';
 import ContributionBadge from './ContributionBadge';
 import ProgressBar from './ProgressBar';
 import SalaryBandViz from './SalaryBandViz';
+import CompetencyTab from './CompetencyTab';
+import GitHubActivityTab from './GitHubActivityTab';
+import GoalUploadModal from './GoalUploadModal';
 import { calcWeightedGoalScore, calcSalaryRecommendation, distributeBudget } from '@/utils/calculations';
 import { categoryLabels } from '@/utils/constants';
 
@@ -28,7 +31,9 @@ const goalStatusColor = {
 
 const tabs = [
   { key: 'goals', label: 'Ziele' },
+  { key: 'competencies', label: 'Kompetenzen' },
   { key: 'extras', label: 'Extra-Leistungen' },
+  { key: 'github', label: 'GitHub' },
   { key: 'salary', label: 'Gehalt & Empfehlung' },
 ];
 
@@ -44,7 +49,7 @@ const tabContent = {
   exit: { opacity: 0, y: -8, transition: { duration: 0.15 } },
 };
 
-export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget, employees }) {
+export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget, employees, competencies, settings }) {
   const [activeTab, setActiveTab] = useState('goals');
   const [editingGoal, setEditingGoal] = useState(null);
   const [editGoalData, setEditGoalData] = useState(null);
@@ -53,8 +58,9 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
   const [newExtra, setNewExtra] = useState('');
   const [newExtraCat, setNewExtraCat] = useState('initiative');
   const [editingSalary, setEditingSalary] = useState(false);
-  const [newGoal, setNewGoal] = useState({ title: '', measurable: '', deadline: '', weight: '20' });
+  const [newGoal, setNewGoal] = useState({ title: '', why: '', specific: '', measurable: '', achievable: '', relevant: '', timeBound: '', weight: '20' });
   const [newTeamGoal, setNewTeamGoal] = useState({ title: '', measurable: '', deadline: '', contribution: 'medium' });
+  const [showGoalUpload, setShowGoalUpload] = useState(false);
 
   const rec = calcSalaryRecommendation(emp);
   const goalScore = calcWeightedGoalScore(emp.personalGoals);
@@ -65,8 +71,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
     setEditingGoal(goal.id);
     setEditGoalData({
       title: goal.title,
+      why: goal.why || '',
+      specific: goal.specific || '',
       measurable: goal.measurable || '',
-      deadline: goal.deadline || '',
+      achievable: goal.achievable || '',
+      relevant: goal.relevant || '',
+      timeBound: goal.timeBound || '',
       weight: String(goal.weight),
       progress: String(goal.progress),
     });
@@ -81,8 +91,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
           ? {
               ...g,
               title: editGoalData.title,
+              why: editGoalData.why,
+              specific: editGoalData.specific,
               measurable: editGoalData.measurable,
-              deadline: editGoalData.deadline,
+              achievable: editGoalData.achievable,
+              relevant: editGoalData.relevant,
+              timeBound: editGoalData.timeBound,
               weight: parseInt(editGoalData.weight) || 20,
               progress,
               status: progress >= 100 ? 'completed' : progress >= 60 ? 'on-track' : progress >= 30 ? 'at-risk' : 'behind',
@@ -127,20 +141,24 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
   };
 
   const addPersonalGoal = () => {
-    if (!newGoal.title.trim() || !newGoal.measurable.trim() || !newGoal.deadline) return;
+    if (!newGoal.title.trim()) return;
     onUpdate({
       ...emp,
       personalGoals: [...emp.personalGoals, {
         id: Date.now(),
         title: newGoal.title,
+        why: newGoal.why,
+        specific: newGoal.specific,
         measurable: newGoal.measurable,
-        deadline: newGoal.deadline,
+        achievable: newGoal.achievable,
+        relevant: newGoal.relevant,
+        timeBound: newGoal.timeBound,
         progress: 0,
         weight: parseInt(newGoal.weight) || 20,
-        status: 'behind',
+        status: 'not-started',
       }],
     });
-    setNewGoal({ title: '', measurable: '', deadline: '', weight: '20' });
+    setNewGoal({ title: '', why: '', specific: '', measurable: '', achievable: '', relevant: '', timeBound: '', weight: '20' });
   };
 
   const deletePersonalGoal = (goalId) => {
@@ -170,6 +188,15 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
     onUpdate({
       ...emp,
       teamGoals: emp.teamGoals.filter((g) => g.id !== goalId),
+    });
+  };
+
+  const importGoals = (goals) => {
+    const maxId = emp.personalGoals.reduce((max, g) => Math.max(max, g.id), 0);
+    const newGoals = goals.map((g, i) => ({ ...g, id: maxId + i + 1 }));
+    onUpdate({
+      ...emp,
+      personalGoals: [...emp.personalGoals, ...newGoals],
     });
   };
 
@@ -208,6 +235,26 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
             <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: '2px 0 0' }}>
               {emp.role} · {emp.department}
             </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+              <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>GitHub:</span>
+              <input
+                className="input"
+                style={{ width: 160, padding: '3px 8px', fontSize: 11 }}
+                placeholder="GitHub Username..."
+                defaultValue={emp.githubUsername || ''}
+                onBlur={(e) => {
+                  if (e.target.value !== (emp.githubUsername || '')) {
+                    onUpdate({ ...emp, githubUsername: e.target.value });
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    onUpdate({ ...emp, githubUsername: e.target.value });
+                    e.target.blur();
+                  }
+                }}
+              />
+            </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
               {emp.highlights.map((h, i) => (
                 <span key={i} className="badge badge--highlight">{h}</span>
@@ -256,26 +303,52 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
       <AnimatePresence mode="wait">
         {activeTab === 'goals' && (
           <motion.div key="goals" {...tabContent} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <h3 className="section-title">Persönliche Ziele</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="section-title" style={{ margin: 0 }}>Persönliche Ziele</h3>
+              <button className="btn btn--ghost" onClick={() => setShowGoalUpload(true)}>
+                ↑ Aus Markdown importieren
+              </button>
+            </div>
             {emp.personalGoals.map((goal) => (
               <Card key={goal.id}>
                 {editingGoal === goal.id && editGoalData ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 2 }}>Ziel bearbeiten (SMART)</div>
-                    <input className="input" value={editGoalData.title} onChange={(e) => setEditGoalData({ ...editGoalData, title: e.target.value })} placeholder="S — Spezifisches Ziel" />
-                    <input className="input" value={editGoalData.measurable} onChange={(e) => setEditGoalData({ ...editGoalData, measurable: e.target.value })} placeholder="M — Messkriterium" />
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input type="date" className="input" style={{ flex: 1 }} value={editGoalData.deadline} onChange={(e) => setEditGoalData({ ...editGoalData, deadline: e.target.value })} title="T — Frist" />
+                    <input className="input" value={editGoalData.title} onChange={(e) => setEditGoalData({ ...editGoalData, title: e.target.value })} placeholder="Titel des Ziels" />
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>WHY — Zweck</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.why} onChange={(e) => setEditGoalData({ ...editGoalData, why: e.target.value })} placeholder="Warum ist dieses Ziel wichtig?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>S — Spezifisch</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.specific} onChange={(e) => setEditGoalData({ ...editGoalData, specific: e.target.value })} placeholder="Was genau soll erreicht werden?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>M — Messbar</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.measurable} onChange={(e) => setEditGoalData({ ...editGoalData, measurable: e.target.value })} placeholder="Woran wird der Erfolg gemessen?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>A — Erreichbar</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.achievable} onChange={(e) => setEditGoalData({ ...editGoalData, achievable: e.target.value })} placeholder="Warum ist das Ziel realistisch erreichbar?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>R — Relevant</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.relevant} onChange={(e) => setEditGoalData({ ...editGoalData, relevant: e.target.value })} placeholder="Warum ist dieses Ziel relevant?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>T — Terminiert</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.timeBound} onChange={(e) => setEditGoalData({ ...editGoalData, timeBound: e.target.value })} placeholder="Zeitplan und Meilensteine" />
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <input type="number" min="0" max="100" className="input input--small" style={{ width: 60 }} value={editGoalData.weight} onChange={(e) => setEditGoalData({ ...editGoalData, weight: e.target.value })} />
-                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Gew.</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Gewicht</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <input type="number" min="0" max="100" className="input input--small" style={{ width: 60 }} value={editGoalData.progress} onChange={(e) => setEditGoalData({ ...editGoalData, progress: e.target.value })} />
-                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Fortschr.</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Fortschritt</span>
                       </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <div style={{ flex: 1 }} />
                       <button className="btn btn--ghost" onClick={() => { setEditingGoal(null); setEditGoalData(null); }}>Abbrechen</button>
                       <button className="btn btn--primary" onClick={() => saveGoalEdit(goal.id)}>Speichern</button>
                     </div>
@@ -291,10 +364,10 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
                           <span className="goal-weight">Gewichtung: {goal.weight}%</span>
                           {goal.measurable && (
-                            <span style={{ fontSize: 11, color: 'var(--blue)' }}>Messbar: {goal.measurable}</span>
+                            <span style={{ fontSize: 11, color: 'var(--blue)' }}>Messbar: {goal.measurable.length > 80 ? goal.measurable.substring(0, 80) + '...' : goal.measurable}</span>
                           )}
-                          {goal.deadline && (
-                            <span style={{ fontSize: 11, color: 'var(--warning)' }}>Frist: {new Date(goal.deadline).toLocaleDateString('de-DE')}</span>
+                          {(goal.timeBound || goal.deadline) && (
+                            <span style={{ fontSize: 11, color: 'var(--warning)' }}>Frist: {new Date(goal.timeBound || goal.deadline).toLocaleDateString('de-DE')}</span>
                           )}
                         </div>
                       </div>
@@ -303,6 +376,11 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                         <button className="btn btn--ghost" style={{ color: 'var(--danger)' }} onClick={() => deletePersonalGoal(goal.id)}>✕</button>
                       </div>
                     </div>
+                    {goal.why && (
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', margin: '8px 0', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                        <strong style={{ color: 'var(--text-dim)', fontSize: 11 }}>WHY:</strong> {goal.why.substring(0, 200)}{goal.why.length > 200 ? '...' : ''}
+                      </div>
+                    )}
                     <div className="goal-progress-row">
                       <div style={{ flex: 1 }}>
                         <ProgressBar value={goal.progress} color={goalStatusColor[goal.status] || 'var(--blue)'} />
@@ -319,30 +397,40 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                 Neues Ziel (SMART)
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 10 }}>
-                Spezifisch · Messbar · Erreichbar · Relevant · Terminiert
+                WHY · Spezifisch · Messbar · Erreichbar · Relevant · Terminiert
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <input
                   value={newGoal.title}
                   onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
-                  placeholder="S — Was genau soll erreicht werden?"
+                  placeholder="Titel des Ziels"
                   className="input"
                 />
-                <input
-                  value={newGoal.measurable}
-                  onChange={(e) => setNewGoal({ ...newGoal, measurable: e.target.value })}
-                  placeholder="M — Woran wird der Erfolg gemessen? (z.B. 'Coverage auf 85%')"
-                  className="input"
-                />
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <input
-                    type="date"
-                    value={newGoal.deadline}
-                    onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
-                    className="input"
-                    style={{ flex: 1 }}
-                    title="T — Frist"
-                  />
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>WHY — Zweck</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.why} onChange={(e) => setNewGoal({ ...newGoal, why: e.target.value })} placeholder="Warum ist dieses Ziel wichtig?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>S — Spezifisch</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.specific} onChange={(e) => setNewGoal({ ...newGoal, specific: e.target.value })} placeholder="Was genau soll erreicht werden?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>M — Messbar</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.measurable} onChange={(e) => setNewGoal({ ...newGoal, measurable: e.target.value })} placeholder="Woran wird der Erfolg gemessen?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>A — Erreichbar</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.achievable} onChange={(e) => setNewGoal({ ...newGoal, achievable: e.target.value })} placeholder="Warum ist das Ziel realistisch erreichbar?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>R — Relevant</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.relevant} onChange={(e) => setNewGoal({ ...newGoal, relevant: e.target.value })} placeholder="Warum ist dieses Ziel relevant?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>T — Terminiert</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.timeBound} onChange={(e) => setNewGoal({ ...newGoal, timeBound: e.target.value })} placeholder="Zeitplan und Meilensteine" />
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <input
                       type="number"
@@ -356,9 +444,10 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                     />
                     <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Gewicht</span>
                   </div>
+                  <div style={{ flex: 1 }} />
                   <button
                     className="btn btn--primary"
-                    disabled={!newGoal.title || !newGoal.measurable || !newGoal.deadline}
+                    disabled={!newGoal.title}
                     onClick={addPersonalGoal}
                   >+ Hinzufügen</button>
                 </div>
@@ -468,6 +557,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
           </motion.div>
         )}
 
+        {activeTab === 'competencies' && (
+          <motion.div key="competencies" {...tabContent}>
+            <CompetencyTab emp={emp} competencies={competencies || []} onUpdate={onUpdate} />
+          </motion.div>
+        )}
+
         {activeTab === 'extras' && (
           <motion.div key="extras" {...tabContent} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <h3 className="section-title">Besondere Leistungen & Auffälligkeiten</h3>
@@ -513,6 +608,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                 <button className="btn btn--primary" onClick={addExtra}>+ Hinzufügen</button>
               </div>
             </Card>
+          </motion.div>
+        )}
+
+        {activeTab === 'github' && (
+          <motion.div key="github" {...tabContent}>
+            <GitHubActivityTab emp={emp} onUpdate={onUpdate} />
           </motion.div>
         )}
 
@@ -583,6 +684,7 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                   { label: 'Position im Gehaltsband', value: `${rec.bandPosition}%`, detail: rec.bandPosition < 30 ? 'Unteres Drittel → Aufholbedarf' : rec.bandPosition > 80 ? 'Oberes Drittel → Gedämpft' : 'Mittlerer Bereich', color: rec.bandPosition < 30 ? 'var(--warning)' : rec.bandPosition > 80 ? 'var(--text-dim)' : 'var(--accent)' },
                   { label: 'Extra-Leistungen Bonus', value: `${emp.extras.length} erfasst`, detail: `+${Math.min(emp.extras.length * 0.4, 2.0).toFixed(1)}% Bonus`, color: 'var(--purple)' },
                   { label: 'Highlights & Auffälligkeiten', value: `${emp.highlights.length} Stück`, detail: `+${Math.min(emp.highlights.length * 0.25, 1.5).toFixed(2)}% Bonus`, color: 'var(--warning)' },
+                  { label: 'Kompetenz-Erfüllung', value: `${rec.competencyScore || 0}%`, detail: `${(emp.competencyAssessments || []).filter(a => a.met).length} von ${(emp.competencyAssessments || []).length} erfüllt`, color: 'var(--blue)' },
                 ].map((factor, i) => (
                   <div key={i} className="factor-row">
                     <div>
@@ -632,6 +734,13 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showGoalUpload && (
+        <GoalUploadModal
+          onImport={importGoals}
+          onClose={() => setShowGoalUpload(false)}
+        />
+      )}
     </motion.div>
   );
 }

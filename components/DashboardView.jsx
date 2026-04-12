@@ -34,7 +34,7 @@ const emptyRoleForm = {
   marketRate: '',
 };
 
-export default function DashboardView({ employees, roles, onSelect, onAddEmployee, onDeleteEmployee, onAddRole, onUpdateRole, onDeleteRole, budget, onBudgetChange }) {
+export default function DashboardView({ employees, roles, onSelect, onAddEmployee, onDeleteEmployee, onAddRole, onUpdateRole, onDeleteRole, budget, onBudgetChange, settings, onSettingsChange }) {
   const [editingBudget, setEditingBudget] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [form, setForm] = useState(emptyEmpForm);
@@ -154,6 +154,39 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
               Budget reicht nicht für ideale Empfehlungen (€{dist.totalIdeal.toLocaleString('de-DE')} benötigt). Erhöhungen werden proportional gekürzt.
             </div>
           )}
+        </Card>
+      </motion.div>
+
+      {/* GitHub Org card */}
+      <motion.div variants={fadeUp}>
+        <Card>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div className="kpi-label">GitHub Organisation</div>
+              <div style={{ fontSize: 13, color: 'var(--text)', marginTop: 4 }}>
+                {settings?.githubOrg || 'collaborationFactory'}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                className="input"
+                style={{ width: 200 }}
+                placeholder="GitHub Org..."
+                defaultValue={settings?.githubOrg || 'collaborationFactory'}
+                onBlur={(e) => {
+                  if (e.target.value !== settings?.githubOrg) {
+                    onSettingsChange({ ...settings, githubOrg: e.target.value });
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    onSettingsChange({ ...settings, githubOrg: e.target.value });
+                    e.target.blur();
+                  }
+                }}
+              />
+            </div>
+          </div>
         </Card>
       </motion.div>
 
