@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/api-auth';
-import { getEmployee, updateEmployee, getSettings, getGitHubToken } from '@/lib/db';
+import { getEmployee, updateEmployee, getSettings } from '@/lib/db';
 
 function validateInput(value, label) {
   if (!/^[a-zA-Z0-9._-]+$/.test(value)) {
@@ -72,7 +72,7 @@ function getMonthlyRanges(startDate, endDate) {
 }
 
 export async function POST(request, { params }) {
-  const { user, error } = await getAuthUser();
+  const { user, accessToken, error } = await getAuthUser();
   if (error) return error;
 
   const { id } = await params;
@@ -94,7 +94,7 @@ export async function POST(request, { params }) {
   }
 
   // Get the user's GitHub OAuth token
-  const token = await getGitHubToken(user.id);
+  const token = accessToken;
 
   const settings = await getSettings(user.id);
   const githubOrg = settings.githubOrg || 'collaborationFactory';
