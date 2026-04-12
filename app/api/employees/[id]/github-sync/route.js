@@ -97,7 +97,7 @@ export async function POST(request, { params }) {
   const token = accessToken;
 
   const settings = await getSettings(user.id);
-  const githubOrg = settings.githubOrg || 'collaborationFactory';
+  const githubOrg = settings.githubOrg || '';
 
   const githubData = emp.githubData || { lastSyncedEnd: null, periods: [] };
   let startDate = requestedStartDate;

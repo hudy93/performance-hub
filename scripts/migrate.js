@@ -186,7 +186,7 @@ async function migrate() {
     CREATE TABLE IF NOT EXISTS settings (
       user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       budget INTEGER DEFAULT 15000,
-      github_org TEXT DEFAULT 'collaborationFactory'
+      github_org TEXT DEFAULT ''
     )
   `;
 

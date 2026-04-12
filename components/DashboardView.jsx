@@ -164,7 +164,7 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
             <div>
               <div className="kpi-label">GitHub Organisation</div>
               <div style={{ fontSize: 13, color: 'var(--text)', marginTop: 4 }}>
-                {settings?.githubOrg || 'collaborationFactory'}
+                {settings?.githubOrg || ''}
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -172,7 +172,7 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
                 className="input"
                 style={{ width: 200 }}
                 placeholder="GitHub Org..."
-                defaultValue={settings?.githubOrg || 'collaborationFactory'}
+                defaultValue={settings?.githubOrg || ''}
                 onBlur={(e) => {
                   if (e.target.value !== settings?.githubOrg) {
                     onSettingsChange({ ...settings, githubOrg: e.target.value });
