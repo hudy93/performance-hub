@@ -1,11 +1,32 @@
 import { NextResponse } from 'next/server';
 import { getEmployees, saveEmployees, getSettings } from '@/lib/data';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+
+// Validate inputs to prevent injection — only allow safe characters
+function validateGhInput(value, label) {
+  if (!/^[a-zA-Z0-9._-]+$/.test(value)) {
+    throw new Error(`Invalid ${label}: "${value}"`);
+  }
+  return value;
+}
+
+function validateDate(value, label) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new Error(`Invalid ${label}: "${value}"`);
+  }
+  return value;
+}
 
 function searchPRs(githubOrg, username, startDate, endDate, option) {
   try {
-    const searchQuery = `is:merged is:pr user:${githubOrg} merged:${startDate}..${endDate} ${option}:${username}`;
-    const result = execSync(`gh search prs --limit 500 --json repository,url "${searchQuery}"`, {
+    const safeOrg = validateGhInput(githubOrg, 'githubOrg');
+    const safeUser = validateGhInput(username, 'username');
+    const safeStart = validateDate(startDate, 'startDate');
+    const safeEnd = validateDate(endDate, 'endDate');
+    const safeOption = validateGhInput(option, 'option');
+
+    const searchQuery = `is:merged is:pr user:${safeOrg} merged:${safeStart}..${safeEnd} ${safeOption}:${safeUser}`;
+    const result = execFileSync('gh', ['search', 'prs', '--limit', '500', '--json', 'repository,url', searchQuery], {
       encoding: 'utf-8',
       timeout: 30000,
     });
