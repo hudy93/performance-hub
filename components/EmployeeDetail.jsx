@@ -58,7 +58,7 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
   const [newExtra, setNewExtra] = useState('');
   const [newExtraCat, setNewExtraCat] = useState('initiative');
   const [editingSalary, setEditingSalary] = useState(false);
-  const [newGoal, setNewGoal] = useState({ title: '', measurable: '', deadline: '', weight: '20' });
+  const [newGoal, setNewGoal] = useState({ title: '', why: '', specific: '', measurable: '', achievable: '', relevant: '', timeBound: '', weight: '20' });
   const [newTeamGoal, setNewTeamGoal] = useState({ title: '', measurable: '', deadline: '', contribution: 'medium' });
   const [showGoalUpload, setShowGoalUpload] = useState(false);
 
@@ -71,8 +71,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
     setEditingGoal(goal.id);
     setEditGoalData({
       title: goal.title,
+      why: goal.why || '',
+      specific: goal.specific || '',
       measurable: goal.measurable || '',
-      deadline: goal.deadline || '',
+      achievable: goal.achievable || '',
+      relevant: goal.relevant || '',
+      timeBound: goal.timeBound || '',
       weight: String(goal.weight),
       progress: String(goal.progress),
     });
@@ -87,8 +91,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
           ? {
               ...g,
               title: editGoalData.title,
+              why: editGoalData.why,
+              specific: editGoalData.specific,
               measurable: editGoalData.measurable,
-              deadline: editGoalData.deadline,
+              achievable: editGoalData.achievable,
+              relevant: editGoalData.relevant,
+              timeBound: editGoalData.timeBound,
               weight: parseInt(editGoalData.weight) || 20,
               progress,
               status: progress >= 100 ? 'completed' : progress >= 60 ? 'on-track' : progress >= 30 ? 'at-risk' : 'behind',
@@ -133,20 +141,24 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
   };
 
   const addPersonalGoal = () => {
-    if (!newGoal.title.trim() || !newGoal.measurable.trim() || !newGoal.deadline) return;
+    if (!newGoal.title.trim()) return;
     onUpdate({
       ...emp,
       personalGoals: [...emp.personalGoals, {
         id: Date.now(),
         title: newGoal.title,
+        why: newGoal.why,
+        specific: newGoal.specific,
         measurable: newGoal.measurable,
-        deadline: newGoal.deadline,
+        achievable: newGoal.achievable,
+        relevant: newGoal.relevant,
+        timeBound: newGoal.timeBound,
         progress: 0,
         weight: parseInt(newGoal.weight) || 20,
-        status: 'behind',
+        status: 'not-started',
       }],
     });
-    setNewGoal({ title: '', measurable: '', deadline: '', weight: '20' });
+    setNewGoal({ title: '', why: '', specific: '', measurable: '', achievable: '', relevant: '', timeBound: '', weight: '20' });
   };
 
   const deletePersonalGoal = (goalId) => {
@@ -300,22 +312,43 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
             {emp.personalGoals.map((goal) => (
               <Card key={goal.id}>
                 {editingGoal === goal.id && editGoalData ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 2 }}>Ziel bearbeiten (SMART)</div>
-                    <input className="input" value={editGoalData.title} onChange={(e) => setEditGoalData({ ...editGoalData, title: e.target.value })} placeholder="S — Spezifisches Ziel" />
-                    <input className="input" value={editGoalData.measurable} onChange={(e) => setEditGoalData({ ...editGoalData, measurable: e.target.value })} placeholder="M — Messkriterium" />
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input type="date" className="input" style={{ flex: 1 }} value={editGoalData.deadline} onChange={(e) => setEditGoalData({ ...editGoalData, deadline: e.target.value })} title="T — Frist" />
+                    <input className="input" value={editGoalData.title} onChange={(e) => setEditGoalData({ ...editGoalData, title: e.target.value })} placeholder="Titel des Ziels" />
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>WHY — Zweck</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.why} onChange={(e) => setEditGoalData({ ...editGoalData, why: e.target.value })} placeholder="Warum ist dieses Ziel wichtig?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>S — Spezifisch</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.specific} onChange={(e) => setEditGoalData({ ...editGoalData, specific: e.target.value })} placeholder="Was genau soll erreicht werden?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>M — Messbar</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.measurable} onChange={(e) => setEditGoalData({ ...editGoalData, measurable: e.target.value })} placeholder="Woran wird der Erfolg gemessen?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>A — Erreichbar</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.achievable} onChange={(e) => setEditGoalData({ ...editGoalData, achievable: e.target.value })} placeholder="Warum ist das Ziel realistisch erreichbar?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>R — Relevant</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.relevant} onChange={(e) => setEditGoalData({ ...editGoalData, relevant: e.target.value })} placeholder="Warum ist dieses Ziel relevant?" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>T — Terminiert</div>
+                      <textarea className="input" style={{ width: '100%', minHeight: 60, resize: 'vertical' }} value={editGoalData.timeBound} onChange={(e) => setEditGoalData({ ...editGoalData, timeBound: e.target.value })} placeholder="Zeitplan und Meilensteine" />
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <input type="number" min="0" max="100" className="input input--small" style={{ width: 60 }} value={editGoalData.weight} onChange={(e) => setEditGoalData({ ...editGoalData, weight: e.target.value })} />
-                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Gew.</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Gewicht</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <input type="number" min="0" max="100" className="input input--small" style={{ width: 60 }} value={editGoalData.progress} onChange={(e) => setEditGoalData({ ...editGoalData, progress: e.target.value })} />
-                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Fortschr.</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Fortschritt</span>
                       </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      <div style={{ flex: 1 }} />
                       <button className="btn btn--ghost" onClick={() => { setEditingGoal(null); setEditGoalData(null); }}>Abbrechen</button>
                       <button className="btn btn--primary" onClick={() => saveGoalEdit(goal.id)}>Speichern</button>
                     </div>
@@ -364,30 +397,40 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                 Neues Ziel (SMART)
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 10 }}>
-                Spezifisch · Messbar · Erreichbar · Relevant · Terminiert
+                WHY · Spezifisch · Messbar · Erreichbar · Relevant · Terminiert
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <input
                   value={newGoal.title}
                   onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
-                  placeholder="S — Was genau soll erreicht werden?"
+                  placeholder="Titel des Ziels"
                   className="input"
                 />
-                <input
-                  value={newGoal.measurable}
-                  onChange={(e) => setNewGoal({ ...newGoal, measurable: e.target.value })}
-                  placeholder="M — Woran wird der Erfolg gemessen? (z.B. 'Coverage auf 85%')"
-                  className="input"
-                />
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <input
-                    type="date"
-                    value={newGoal.deadline}
-                    onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
-                    className="input"
-                    style={{ flex: 1 }}
-                    title="T — Frist"
-                  />
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>WHY — Zweck</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.why} onChange={(e) => setNewGoal({ ...newGoal, why: e.target.value })} placeholder="Warum ist dieses Ziel wichtig?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>S — Spezifisch</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.specific} onChange={(e) => setNewGoal({ ...newGoal, specific: e.target.value })} placeholder="Was genau soll erreicht werden?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>M — Messbar</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.measurable} onChange={(e) => setNewGoal({ ...newGoal, measurable: e.target.value })} placeholder="Woran wird der Erfolg gemessen?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>A — Erreichbar</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.achievable} onChange={(e) => setNewGoal({ ...newGoal, achievable: e.target.value })} placeholder="Warum ist das Ziel realistisch erreichbar?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>R — Relevant</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.relevant} onChange={(e) => setNewGoal({ ...newGoal, relevant: e.target.value })} placeholder="Warum ist dieses Ziel relevant?" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 4 }}>T — Terminiert</div>
+                  <textarea className="input" style={{ width: '100%', minHeight: 50, resize: 'vertical' }} value={newGoal.timeBound} onChange={(e) => setNewGoal({ ...newGoal, timeBound: e.target.value })} placeholder="Zeitplan und Meilensteine" />
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <input
                       type="number"
@@ -401,9 +444,10 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                     />
                     <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>% Gewicht</span>
                   </div>
+                  <div style={{ flex: 1 }} />
                   <button
                     className="btn btn--primary"
-                    disabled={!newGoal.title || !newGoal.measurable || !newGoal.deadline}
+                    disabled={!newGoal.title}
                     onClick={addPersonalGoal}
                   >+ Hinzufügen</button>
                 </div>
