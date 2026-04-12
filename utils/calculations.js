@@ -12,12 +12,32 @@ export function calcSalaryRecommendation(emp) {
   const extrasBonus = Math.min(emp.extras.length * 0.4, 2.0);
   const highlightsBonus = Math.min(emp.highlights.length * 0.25, 1.5);
 
+  // Competency score: percentage of met competencies + milestone bonus for targets
+  const assessments = emp.competencyAssessments || [];
+  let competencyScore = 0;
+  if (assessments.length > 0) {
+    const metCount = assessments.filter(a => a.met).length;
+    const baseScore = metCount / assessments.length;
+
+    // Milestone bonus: for target competencies, completed milestones add up to 20% bonus
+    const targetAssessments = assessments.filter(a => a.isTarget && a.milestones.length > 0);
+    let milestoneBonus = 0;
+    if (targetAssessments.length > 0) {
+      const totalMilestones = targetAssessments.reduce((s, a) => s + a.milestones.length, 0);
+      const doneMilestones = targetAssessments.reduce((s, a) => s + a.milestones.filter(m => m.status === 'done').length, 0);
+      milestoneBonus = (doneMilestones / totalMilestones) * 0.2;
+    }
+
+    competencyScore = Math.min(baseScore + milestoneBonus, 1.0);
+  }
+
   const performanceMultiplier =
-    (goalScore / 100) * 0.3 +
+    (goalScore / 100) * 0.25 +
     (teamAvg / 100) * 0.2 +
-    (emp.performanceScore / 5) * 0.3 +
+    (emp.performanceScore / 5) * 0.2 +
+    competencyScore * 0.2 +
     (extrasBonus / 2) * 0.1 +
-    (highlightsBonus / 1.5) * 0.1;
+    (highlightsBonus / 1.5) * 0.05;
 
   const marketGap = ((emp.marketRate - emp.currentSalary) / emp.currentSalary) * 100;
   const bandPosition =
@@ -42,6 +62,7 @@ export function calcSalaryRecommendation(emp) {
     marketGap: Math.round(marketGap * 10) / 10,
     bandPosition: Math.round(bandPosition),
     performanceMultiplier: Math.round(performanceMultiplier * 100),
+    competencyScore: Math.round(competencyScore * 100),
   };
 }
 

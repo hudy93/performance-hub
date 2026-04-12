@@ -625,6 +625,7 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                   { label: 'Position im Gehaltsband', value: `${rec.bandPosition}%`, detail: rec.bandPosition < 30 ? 'Unteres Drittel → Aufholbedarf' : rec.bandPosition > 80 ? 'Oberes Drittel → Gedämpft' : 'Mittlerer Bereich', color: rec.bandPosition < 30 ? 'var(--warning)' : rec.bandPosition > 80 ? 'var(--text-dim)' : 'var(--accent)' },
                   { label: 'Extra-Leistungen Bonus', value: `${emp.extras.length} erfasst`, detail: `+${Math.min(emp.extras.length * 0.4, 2.0).toFixed(1)}% Bonus`, color: 'var(--purple)' },
                   { label: 'Highlights & Auffälligkeiten', value: `${emp.highlights.length} Stück`, detail: `+${Math.min(emp.highlights.length * 0.25, 1.5).toFixed(2)}% Bonus`, color: 'var(--warning)' },
+                  { label: 'Kompetenz-Erfüllung', value: `${rec.competencyScore || 0}%`, detail: `${(emp.competencyAssessments || []).filter(a => a.met).length} von ${(emp.competencyAssessments || []).length} erfüllt`, color: 'var(--blue)' },
                 ].map((factor, i) => (
                   <div key={i} className="factor-row">
                     <div>
