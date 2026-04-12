@@ -62,7 +62,7 @@ function getMonthlyRanges(startDate, endDate) {
 export async function POST(request, { params }) {
   const { id } = await params;
   const body = await request.json();
-  const { endDate, startDate: requestedStartDate } = body;
+  const { endDate, startDate: requestedStartDate, githubUsername: bodyUsername } = body;
 
   if (!endDate) {
     return NextResponse.json({ error: 'endDate is required' }, { status: 400 });
@@ -75,8 +75,14 @@ export async function POST(request, { params }) {
   }
 
   const emp = employees[index];
-  if (!emp.githubUsername) {
+  // Accept username from request body (in case save hasn't flushed yet) or from stored data
+  const username = bodyUsername || emp.githubUsername;
+  if (!username) {
     return NextResponse.json({ error: 'Employee has no githubUsername set' }, { status: 400 });
+  }
+  // Persist the username if it came from the body
+  if (bodyUsername && bodyUsername !== emp.githubUsername) {
+    emp.githubUsername = bodyUsername;
   }
 
   const settings = await getSettings();
@@ -101,8 +107,8 @@ export async function POST(request, { params }) {
       const exists = githubData.periods.some(p => p.startDate === range.start && p.endDate === range.end);
       if (exists) continue;
 
-      const assignedPRs = searchPRs(githubOrg, emp.githubUsername, range.start, range.end, 'assignee');
-      const reviewedPRs = searchPRs(githubOrg, emp.githubUsername, range.start, range.end, 'reviewed-by');
+      const assignedPRs = searchPRs(githubOrg, username, range.start, range.end, 'assignee');
+      const reviewedPRs = searchPRs(githubOrg, username, range.start, range.end, 'reviewed-by');
       const repositories = [...new Set(assignedPRs.map(pr => pr.repository.name))];
 
       githubData.periods.push({

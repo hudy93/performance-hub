@@ -18,7 +18,7 @@ export default function GitHubActivityTab({ emp, onUpdate }) {
     setSyncing(true);
     setSyncError(null);
     try {
-      const body = { endDate };
+      const body = { endDate, githubUsername: emp.githubUsername };
       if (!hasPreviousData && startDate) {
         body.startDate = startDate;
       }
