@@ -8,6 +8,9 @@ import StatusBadge from './StatusBadge';
 import ContributionBadge from './ContributionBadge';
 import ProgressBar from './ProgressBar';
 import SalaryBandViz from './SalaryBandViz';
+import CompetencyTab from './CompetencyTab';
+import GitHubActivityTab from './GitHubActivityTab';
+import GoalUploadModal from './GoalUploadModal';
 import { calcWeightedGoalScore, calcSalaryRecommendation, distributeBudget } from '@/utils/calculations';
 import { categoryLabels } from '@/utils/constants';
 
@@ -28,7 +31,9 @@ const goalStatusColor = {
 
 const tabs = [
   { key: 'goals', label: 'Ziele' },
+  { key: 'competencies', label: 'Kompetenzen' },
   { key: 'extras', label: 'Extra-Leistungen' },
+  { key: 'github', label: 'GitHub' },
   { key: 'salary', label: 'Gehalt & Empfehlung' },
 ];
 
@@ -44,7 +49,7 @@ const tabContent = {
   exit: { opacity: 0, y: -8, transition: { duration: 0.15 } },
 };
 
-export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget, employees }) {
+export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget, employees, competencies, settings }) {
   const [activeTab, setActiveTab] = useState('goals');
   const [editingGoal, setEditingGoal] = useState(null);
   const [editGoalData, setEditGoalData] = useState(null);
@@ -55,6 +60,7 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
   const [editingSalary, setEditingSalary] = useState(false);
   const [newGoal, setNewGoal] = useState({ title: '', measurable: '', deadline: '', weight: '20' });
   const [newTeamGoal, setNewTeamGoal] = useState({ title: '', measurable: '', deadline: '', contribution: 'medium' });
+  const [showGoalUpload, setShowGoalUpload] = useState(false);
 
   const rec = calcSalaryRecommendation(emp);
   const goalScore = calcWeightedGoalScore(emp.personalGoals);
@@ -173,6 +179,15 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
     });
   };
 
+  const importGoals = (goals) => {
+    const maxId = emp.personalGoals.reduce((max, g) => Math.max(max, g.id), 0);
+    const newGoals = goals.map((g, i) => ({ ...g, id: maxId + i + 1 }));
+    onUpdate({
+      ...emp,
+      personalGoals: [...emp.personalGoals, ...newGoals],
+    });
+  };
+
   const addExtra = () => {
     if (!newExtra.trim()) return;
     onUpdate({
@@ -208,6 +223,11 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
             <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: '2px 0 0' }}>
               {emp.role} · {emp.department}
             </p>
+            {emp.githubUsername && (
+              <p style={{ color: 'var(--text-dim)', fontSize: 11, margin: '2px 0 0' }}>
+                GitHub: @{emp.githubUsername}
+              </p>
+            )}
             <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
               {emp.highlights.map((h, i) => (
                 <span key={i} className="badge badge--highlight">{h}</span>
@@ -256,7 +276,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
       <AnimatePresence mode="wait">
         {activeTab === 'goals' && (
           <motion.div key="goals" {...tabContent} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <h3 className="section-title">Persönliche Ziele</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="section-title" style={{ margin: 0 }}>Persönliche Ziele</h3>
+              <button className="btn btn--ghost" onClick={() => setShowGoalUpload(true)}>
+                ↑ Aus Markdown importieren
+              </button>
+            </div>
             {emp.personalGoals.map((goal) => (
               <Card key={goal.id}>
                 {editingGoal === goal.id && editGoalData ? (
@@ -291,10 +316,10 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
                           <span className="goal-weight">Gewichtung: {goal.weight}%</span>
                           {goal.measurable && (
-                            <span style={{ fontSize: 11, color: 'var(--blue)' }}>Messbar: {goal.measurable}</span>
+                            <span style={{ fontSize: 11, color: 'var(--blue)' }}>Messbar: {goal.measurable.length > 80 ? goal.measurable.substring(0, 80) + '...' : goal.measurable}</span>
                           )}
-                          {goal.deadline && (
-                            <span style={{ fontSize: 11, color: 'var(--warning)' }}>Frist: {new Date(goal.deadline).toLocaleDateString('de-DE')}</span>
+                          {(goal.timeBound || goal.deadline) && (
+                            <span style={{ fontSize: 11, color: 'var(--warning)' }}>Frist: {new Date(goal.timeBound || goal.deadline).toLocaleDateString('de-DE')}</span>
                           )}
                         </div>
                       </div>
@@ -303,6 +328,11 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                         <button className="btn btn--ghost" style={{ color: 'var(--danger)' }} onClick={() => deletePersonalGoal(goal.id)}>✕</button>
                       </div>
                     </div>
+                    {goal.why && (
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', margin: '8px 0', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                        <strong style={{ color: 'var(--text-dim)', fontSize: 11 }}>WHY:</strong> {goal.why.substring(0, 200)}{goal.why.length > 200 ? '...' : ''}
+                      </div>
+                    )}
                     <div className="goal-progress-row">
                       <div style={{ flex: 1 }}>
                         <ProgressBar value={goal.progress} color={goalStatusColor[goal.status] || 'var(--blue)'} />
@@ -468,6 +498,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
           </motion.div>
         )}
 
+        {activeTab === 'competencies' && (
+          <motion.div key="competencies" {...tabContent}>
+            <CompetencyTab emp={emp} competencies={competencies || []} onUpdate={onUpdate} />
+          </motion.div>
+        )}
+
         {activeTab === 'extras' && (
           <motion.div key="extras" {...tabContent} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <h3 className="section-title">Besondere Leistungen & Auffälligkeiten</h3>
@@ -513,6 +549,12 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
                 <button className="btn btn--primary" onClick={addExtra}>+ Hinzufügen</button>
               </div>
             </Card>
+          </motion.div>
+        )}
+
+        {activeTab === 'github' && (
+          <motion.div key="github" {...tabContent}>
+            <GitHubActivityTab emp={emp} onUpdate={onUpdate} />
           </motion.div>
         )}
 
@@ -632,6 +674,13 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showGoalUpload && (
+        <GoalUploadModal
+          onImport={importGoals}
+          onClose={() => setShowGoalUpload(false)}
+        />
+      )}
     </motion.div>
   );
 }
