@@ -54,6 +54,11 @@ export default function LandingPage() {
         <p style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 16 }}>
           Deine Daten werden isoliert gespeichert. Nur du hast Zugriff.
         </p>
+
+        <div style={{ marginTop: 48, display: 'flex', gap: 16, justifyContent: 'center' }}>
+          <a href="/impressum" style={{ fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none' }}>Impressum</a>
+          <a href="/datenschutz" style={{ fontSize: 11, color: 'var(--text-dim)', textDecoration: 'none' }}>Datenschutz</a>
+        </div>
       </div>
     </div>
   );
