@@ -38,6 +38,27 @@ function searchPRs(githubOrg, username, startDate, endDate, option) {
   }
 }
 
+// Split a date range into monthly chunks: [{start, end}, ...]
+function getMonthlyRanges(startDate, endDate) {
+  const ranges = [];
+  let cursor = new Date(startDate + 'T00:00:00');
+  const end = new Date(endDate + 'T00:00:00');
+
+  while (cursor < end) {
+    const monthStart = new Date(cursor);
+    // Move to first day of next month
+    const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+    // Cap at endDate
+    const periodEnd = monthEnd > end ? end : monthEnd;
+
+    const fmt = (d) => d.toISOString().split('T')[0];
+    ranges.push({ start: fmt(monthStart), end: fmt(periodEnd) });
+
+    cursor = monthEnd;
+  }
+  return ranges;
+}
+
 export async function POST(request, { params }) {
   const { id } = await params;
   const body = await request.json();
@@ -71,31 +92,36 @@ export async function POST(request, { params }) {
     return NextResponse.json({ error: 'startDate is required for initial sync' }, { status: 400 });
   }
 
-  // Fetch PR data
-  let assignedPRs, reviewedPRs;
+  // Split into monthly ranges and fetch each
+  const monthlyRanges = getMonthlyRanges(startDate, endDate);
+
   try {
-    assignedPRs = searchPRs(githubOrg, emp.githubUsername, startDate, endDate, 'assignee');
-    reviewedPRs = searchPRs(githubOrg, emp.githubUsername, startDate, endDate, 'reviewed-by');
+    for (const range of monthlyRanges) {
+      // Skip if we already have data for this exact period
+      const exists = githubData.periods.some(p => p.startDate === range.start && p.endDate === range.end);
+      if (exists) continue;
+
+      const assignedPRs = searchPRs(githubOrg, emp.githubUsername, range.start, range.end, 'assignee');
+      const reviewedPRs = searchPRs(githubOrg, emp.githubUsername, range.start, range.end, 'reviewed-by');
+      const repositories = [...new Set(assignedPRs.map(pr => pr.repository.name))];
+
+      githubData.periods.push({
+        timePeriod: `${range.start}-to-${range.end}`,
+        startDate: range.start,
+        endDate: range.end,
+        pullRequestsCount: assignedPRs.length,
+        reviewsCount: reviewedPRs.length,
+        repositoriesCount: repositories.length,
+        repositories,
+        pullRequests: assignedPRs.map(pr => pr.url),
+        reviewedPullRequests: reviewedPRs.map(pr => pr.url),
+      });
+    }
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 
-  const repositories = [...new Set(assignedPRs.map(pr => pr.repository.name))];
-
-  const newPeriod = {
-    timePeriod: `${startDate}-to-${endDate}`,
-    startDate,
-    endDate,
-    pullRequestsCount: assignedPRs.length,
-    reviewsCount: reviewedPRs.length,
-    repositoriesCount: repositories.length,
-    repositories,
-    pullRequests: assignedPRs.map(pr => pr.url),
-    reviewedPullRequests: reviewedPRs.map(pr => pr.url),
-  };
-
-  githubData.periods.push(newPeriod);
-  githubData.periods.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+  githubData.periods.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
   githubData.lastSyncedEnd = endDate;
 
   emp.githubData = githubData;
