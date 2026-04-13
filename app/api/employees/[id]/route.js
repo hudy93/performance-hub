@@ -55,7 +55,6 @@ const updateEmployeeSchema = z.object({
     max: z.number().int().min(0).max(10000000).optional().default(0),
   }).optional().default({}),
   marketRate: z.number().int().min(0).max(10000000).optional().default(0),
-  inflation: z.number().min(0).max(100).optional().default(3.2),
   performanceScore: z.number().min(0).max(5).optional().default(3.0),
   highlights: z.array(z.string().max(500)).max(20).optional().default([]),
   githubUsername: z.string().max(100).optional().default(''),

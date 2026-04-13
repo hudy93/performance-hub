@@ -5,7 +5,7 @@ export function calcWeightedGoalScore(goals) {
   return goals.reduce((s, g) => s + (g.progress * (g.weight || 0)) / totalWeight, 0);
 }
 
-export function calcSalaryRecommendation(emp) {
+export function calcSalaryRecommendation(emp, { inflation } = {}) {
   const goalScore = calcWeightedGoalScore(emp.personalGoals);
   const teamAvg =
     emp.teamGoals.reduce((s, g) => s + g.progress, 0) / (emp.teamGoals.length || 1);
@@ -45,7 +45,7 @@ export function calcSalaryRecommendation(emp) {
       (emp.salaryBand.max - emp.salaryBand.min)) *
     100;
 
-  let baseIncrease = emp.inflation;
+  let baseIncrease = inflation != null ? inflation : emp.inflation;
   baseIncrease += performanceMultiplier * 6;
   if (marketGap > 5) baseIncrease += Math.min(marketGap * 0.3, 3);
   if (bandPosition < 30) baseIncrease += 1.5;
@@ -66,11 +66,11 @@ export function calcSalaryRecommendation(emp) {
   };
 }
 
-export function distributeBudget(employees, budget) {
+export function distributeBudget(employees, budget, { inflation } = {}) {
   if (!budget || budget <= 0) return null;
 
   const recs = employees.map((emp) => {
-    const rec = calcSalaryRecommendation(emp);
+    const rec = calcSalaryRecommendation(emp, { inflation });
     return { emp, rec, idealIncrease: rec.newSalary - emp.currentSalary };
   });
 

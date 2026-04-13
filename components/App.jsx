@@ -34,7 +34,7 @@ export default function App({ user }) {
   }, []);
   const [budget, setBudget] = useState(15000);
   const [competencies, setCompetencies] = useState([]);
-  const [settings, setSettings] = useState({ budget: 15000, githubOrg: '' });
+  const [settings, setSettings] = useState({ budget: 15000, githubOrg: '', inflation: 3.2 });
   const [loading, setLoading] = useState(true);
 
   const saveTimeoutRef = useRef(null);

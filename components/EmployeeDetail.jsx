@@ -58,15 +58,15 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
   const [newExtra, setNewExtra] = useState('');
   const [newExtraCat, setNewExtraCat] = useState('initiative');
   const [editingSalary, setEditingSalary] = useState(false);
-  const [editingInflation, setEditingInflation] = useState(false);
   const [editingPerfScore, setEditingPerfScore] = useState(false);
   const [newGoal, setNewGoal] = useState({ title: '', why: '', specific: '', measurable: '', achievable: '', relevant: '', timeBound: '', weight: '20' });
   const [newTeamGoal, setNewTeamGoal] = useState({ title: '', measurable: '', deadline: '', contribution: 'medium' });
   const [showGoalUpload, setShowGoalUpload] = useState(false);
 
-  const rec = calcSalaryRecommendation(emp);
+  const inflation = settings?.inflation ?? 3.2;
+  const rec = calcSalaryRecommendation(emp, { inflation });
   const goalScore = calcWeightedGoalScore(emp.personalGoals);
-  const dist = distributeBudget(employees, budget);
+  const dist = distributeBudget(employees, budget, { inflation });
   const alloc = dist?.allocations.find((a) => a.empId === emp.id);
 
   const startEditGoal = (goal) => {
@@ -263,7 +263,38 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
               ))}
             </div>
           </div>
-          <ScoreGauge score={emp.performanceScore} />
+          {editingPerfScore ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+                defaultValue={emp.performanceScore}
+                className="input"
+                style={{ width: 70, fontSize: 18, fontWeight: 700, textAlign: 'center' }}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val) && val >= 0 && val <= 5) onUpdate({ ...emp, performanceScore: val });
+                    setEditingPerfScore(false);
+                  }
+                  if (e.key === 'Escape') setEditingPerfScore(false);
+                }}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val) && val >= 0 && val <= 5) onUpdate({ ...emp, performanceScore: val });
+                  setEditingPerfScore(false);
+                }}
+              />
+              <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>/ 5.0</span>
+            </div>
+          ) : (
+            <div onClick={() => setEditingPerfScore(true)} style={{ cursor: 'pointer' }} title="Klicken zum Bearbeiten">
+              <ScoreGauge score={emp.performanceScore} />
+            </div>
+          )}
         </div>
       </Card>
 
@@ -678,42 +709,14 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
             <Card>
               <h3 className="section-title" style={{ marginBottom: 14 }}>Berechnungsfaktoren</h3>
               <div>
-                {/* Editable: Inflation */}
+                {/* Inflation (global setting) */}
                 <div className="factor-row">
                   <div>
                     <div className="factor-label">Inflation (Basisanpassung)</div>
-                    <div className="factor-detail">Automatische Mindestanpassung</div>
+                    <div className="factor-detail">Globale Einstellung für alle Mitarbeiter</div>
                   </div>
                   <div className="factor-value" style={{ color: 'var(--text-muted)' }}>
-                    {editingInflation ? (
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        defaultValue={emp.inflation}
-                        className="input input--small"
-                        style={{ width: 70, textAlign: 'right', fontSize: 13, fontWeight: 600 }}
-                        autoFocus
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const val = parseFloat(e.target.value);
-                            if (!isNaN(val) && val >= 0 && val <= 100) onUpdate({ ...emp, inflation: val });
-                            setEditingInflation(false);
-                          }
-                          if (e.key === 'Escape') setEditingInflation(false);
-                        }}
-                        onBlur={(e) => {
-                          const val = parseFloat(e.target.value);
-                          if (!isNaN(val) && val >= 0 && val <= 100) onUpdate({ ...emp, inflation: val });
-                          setEditingInflation(false);
-                        }}
-                      />
-                    ) : (
-                      <span style={{ cursor: 'pointer' }} onClick={() => setEditingInflation(true)} title="Klicken zum Bearbeiten">
-                        {emp.inflation}% <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>✎</span>
-                      </span>
-                    )}
+                    {inflation}%
                   </div>
                 </div>
                 {/* Editable: Performance Score */}

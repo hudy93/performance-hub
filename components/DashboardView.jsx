@@ -21,7 +21,6 @@ const emptyEmpForm = {
   name: '',
   roleId: '',
   currentSalary: '',
-  inflation: '3.2',
   performanceScore: '3.0',
 };
 
@@ -47,7 +46,8 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
   const totalExtras = employees.reduce((s, e) => s + e.extras.length, 0);
   const topPerformer = [...employees].sort((a, b) => b.performanceScore - a.performanceScore)[0];
 
-  const dist = distributeBudget(employees, budget);
+  const inflation = settings?.inflation ?? 3.2;
+  const dist = distributeBudget(employees, budget, { inflation });
   const totalUsed = dist ? dist.allocations.reduce((s, a) => s + a.allocated, 0) : 0;
   const budgetUtilization = budget > 0 ? Math.round((totalUsed / budget) * 100) : 0;
 
@@ -185,6 +185,45 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
                   }
                 }}
               />
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Inflation setting */}
+      <motion.div variants={fadeUp}>
+        <Card>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div className="kpi-label">Inflationsrate (%)</div>
+              <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 2 }}>Basisanpassung für alle Mitarbeiter</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                className="input"
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                style={{ width: 80, textAlign: 'right' }}
+                defaultValue={settings?.inflation ?? 3.2}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val) && val >= 0 && val <= 100 && val !== settings?.inflation) {
+                    onSettingsChange({ ...settings, inflation: val });
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val) && val >= 0 && val <= 100) {
+                      onSettingsChange({ ...settings, inflation: val });
+                    }
+                    e.target.blur();
+                  }
+                }}
+              />
+              <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>%</span>
             </div>
           </div>
         </Card>
@@ -339,7 +378,6 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
                   ))}
                 </select>
                 <input className="input" type="number" placeholder="Aktuelles Gehalt" value={form.currentSalary} onChange={(e) => setForm({ ...form, currentSalary: e.target.value })} />
-                <input className="input" type="number" step="0.1" placeholder="Inflation %" value={form.inflation} onChange={(e) => setForm({ ...form, inflation: e.target.value })} />
                 <input className="input" type="number" step="0.1" min="1" max="5" placeholder="Performance Score (1-5)" value={form.performanceScore} onChange={(e) => setForm({ ...form, performanceScore: e.target.value })} />
               </div>
               {selectedRole && (
@@ -361,7 +399,6 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
                       currentSalary: parseInt(form.currentSalary),
                       salaryBand: { ...selectedRole.salaryBand },
                       marketRate: selectedRole.marketRate,
-                      inflation: parseFloat(form.inflation) || 3.2,
                       personalGoals: [],
                       teamGoals: [],
                       extras: [],
@@ -383,7 +420,7 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
 
         <div className="employee-list">
           {employees.map((emp) => {
-            const rec = calcSalaryRecommendation(emp);
+            const rec = calcSalaryRecommendation(emp, { inflation });
             const alloc = dist?.allocations.find((a) => a.empId === emp.id);
             const goalScore = calcWeightedGoalScore(emp.personalGoals);
             const scoreColor =
@@ -424,7 +461,7 @@ export default function DashboardView({ employees, roles, onSelect, onAddEmploye
         <Card>
           <h3 className="section-title" style={{ marginBottom: 16 }}>Budgetverteilung – Übersicht</h3>
           {employees.map((emp) => {
-            const rec = calcSalaryRecommendation(emp);
+            const rec = calcSalaryRecommendation(emp, { inflation });
             const alloc = dist?.allocations.find((a) => a.empId === emp.id);
             const allocated = alloc?.allocated ?? rec.increaseAbsolute;
             const newSalary = alloc?.newSalary ?? rec.newSalary;

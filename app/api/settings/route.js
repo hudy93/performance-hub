@@ -6,6 +6,7 @@ import { getSettings, saveSettings } from '@/lib/db';
 const settingsSchema = z.object({
   budget: z.number().int().min(0).max(100000000).optional().default(15000),
   githubOrg: z.string().max(100).optional().default(''),
+  inflation: z.number().min(0).max(100).optional().default(3.2),
 });
 
 export async function GET() {
