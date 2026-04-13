@@ -58,6 +58,8 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
   const [newExtra, setNewExtra] = useState('');
   const [newExtraCat, setNewExtraCat] = useState('initiative');
   const [editingSalary, setEditingSalary] = useState(false);
+  const [editingInflation, setEditingInflation] = useState(false);
+  const [editingPerfScore, setEditingPerfScore] = useState(false);
   const [newGoal, setNewGoal] = useState({ title: '', why: '', specific: '', measurable: '', achievable: '', relevant: '', timeBound: '', weight: '20' });
   const [newTeamGoal, setNewTeamGoal] = useState({ title: '', measurable: '', deadline: '', contribution: 'medium' });
   const [showGoalUpload, setShowGoalUpload] = useState(false);
@@ -676,9 +678,83 @@ export default function EmployeeDetail({ emp, onBack, onUpdate, onDelete, budget
             <Card>
               <h3 className="section-title" style={{ marginBottom: 14 }}>Berechnungsfaktoren</h3>
               <div>
+                {/* Editable: Inflation */}
+                <div className="factor-row">
+                  <div>
+                    <div className="factor-label">Inflation (Basisanpassung)</div>
+                    <div className="factor-detail">Automatische Mindestanpassung</div>
+                  </div>
+                  <div className="factor-value" style={{ color: 'var(--text-muted)' }}>
+                    {editingInflation ? (
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        defaultValue={emp.inflation}
+                        className="input input--small"
+                        style={{ width: 70, textAlign: 'right', fontSize: 13, fontWeight: 600 }}
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const val = parseFloat(e.target.value);
+                            if (!isNaN(val) && val >= 0 && val <= 100) onUpdate({ ...emp, inflation: val });
+                            setEditingInflation(false);
+                          }
+                          if (e.key === 'Escape') setEditingInflation(false);
+                        }}
+                        onBlur={(e) => {
+                          const val = parseFloat(e.target.value);
+                          if (!isNaN(val) && val >= 0 && val <= 100) onUpdate({ ...emp, inflation: val });
+                          setEditingInflation(false);
+                        }}
+                      />
+                    ) : (
+                      <span style={{ cursor: 'pointer' }} onClick={() => setEditingInflation(true)} title="Klicken zum Bearbeiten">
+                        {emp.inflation}% <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>✎</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {/* Editable: Performance Score */}
+                <div className="factor-row">
+                  <div>
+                    <div className="factor-label">Performance Score</div>
+                    <div className="factor-detail">Multiplier: {rec.performanceMultiplier}%</div>
+                  </div>
+                  <div className="factor-value" style={{ color: emp.performanceScore >= 4 ? 'var(--accent)' : emp.performanceScore >= 3 ? 'var(--blue)' : 'var(--danger)' }}>
+                    {editingPerfScore ? (
+                      <input
+                        type="number"
+                        min="0"
+                        max="5"
+                        step="0.1"
+                        defaultValue={emp.performanceScore}
+                        className="input input--small"
+                        style={{ width: 70, textAlign: 'right', fontSize: 13, fontWeight: 600 }}
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const val = parseFloat(e.target.value);
+                            if (!isNaN(val) && val >= 0 && val <= 5) onUpdate({ ...emp, performanceScore: val });
+                            setEditingPerfScore(false);
+                          }
+                          if (e.key === 'Escape') setEditingPerfScore(false);
+                        }}
+                        onBlur={(e) => {
+                          const val = parseFloat(e.target.value);
+                          if (!isNaN(val) && val >= 0 && val <= 5) onUpdate({ ...emp, performanceScore: val });
+                          setEditingPerfScore(false);
+                        }}
+                      />
+                    ) : (
+                      <span style={{ cursor: 'pointer' }} onClick={() => setEditingPerfScore(true)} title="Klicken zum Bearbeiten">
+                        {emp.performanceScore} / 5.0 <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>✎</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
                 {[
-                  { label: 'Inflation (Basisanpassung)', value: `${emp.inflation}%`, detail: 'Automatische Mindestanpassung', color: 'var(--text-muted)' },
-                  { label: 'Performance Score', value: `${emp.performanceScore} / 5.0`, detail: `Multiplier: ${rec.performanceMultiplier}%`, color: emp.performanceScore >= 4 ? 'var(--accent)' : emp.performanceScore >= 3 ? 'var(--blue)' : 'var(--danger)' },
                   { label: 'Gewichtete Zielerreichung', value: `${Math.round(goalScore)}%`, detail: `${emp.personalGoals.filter((g) => g.status === 'completed').length} von ${emp.personalGoals.length} Zielen erledigt`, color: 'var(--blue)' },
                   { label: 'Marktposition', value: `€${emp.marketRate.toLocaleString('de-DE')}`, detail: `Differenz: ${rec.marketGap > 0 ? '−' : '+'}${Math.abs(rec.marketGap)}%`, color: rec.marketGap > 0 ? 'var(--danger)' : 'var(--accent)' },
                   { label: 'Position im Gehaltsband', value: `${rec.bandPosition}%`, detail: rec.bandPosition < 30 ? 'Unteres Drittel → Aufholbedarf' : rec.bandPosition > 80 ? 'Oberes Drittel → Gedämpft' : 'Mittlerer Bereich', color: rec.bandPosition < 30 ? 'var(--warning)' : rec.bandPosition > 80 ? 'var(--text-dim)' : 'var(--accent)' },
