@@ -71,7 +71,9 @@ export default function App({ user }) {
   }, []);
 
   // Auto-save employee on update (debounced 300ms)
+  const saveVersionRef = useRef(0);
   const handleUpdate = useCallback((updated) => {
+    const version = ++saveVersionRef.current;
     setEmployees((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
 
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -87,8 +89,11 @@ export default function App({ user }) {
           console.error('Failed to save employee:', res.status, err);
           return;
         }
-        const saved = await res.json();
-        setEmployees((prev) => prev.map((e) => (e.id === saved.id ? saved : e)));
+        // Only apply server response if no newer local update happened
+        if (saveVersionRef.current === version) {
+          const saved = await res.json();
+          setEmployees((prev) => prev.map((e) => (e.id === saved.id ? saved : e)));
+        }
       } catch (err) {
         console.error('Failed to save employee:', err);
       }
