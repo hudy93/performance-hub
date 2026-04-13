@@ -60,7 +60,7 @@ const updateEmployeeSchema = z.object({
   highlights: z.array(z.string().max(500)).max(20).optional().default([]),
   githubUsername: z.string().max(100).optional().default(''),
   githubData: z.any().optional().nullable(),
-  lastReview: z.string().max(20).optional().nullable(),
+  lastReview: z.union([z.string().max(20), z.date()]).optional().nullable().transform(v => v instanceof Date ? v.toISOString().split('T')[0] : v),
   personalGoals: z.array(personalGoalSchema).max(50).optional().default([]),
   teamGoals: z.array(teamGoalSchema).max(50).optional().default([]),
   extras: z.array(extraSchema).max(100).optional().default([]),
@@ -81,7 +81,8 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const result = updateEmployeeSchema.safeParse(body);
     if (!result.success) {
-      return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+      console.error('Validation failed:', JSON.stringify(result.error.issues, null, 2));
+      return NextResponse.json({ error: 'Invalid input', details: result.error.issues }, { status: 400 });
     }
 
     const updated = await updateEmployee(user.id, employeeId, result.data);

@@ -5,10 +5,33 @@ import { AnimatePresence } from 'motion/react';
 import DashboardView from './DashboardView';
 import EmployeeDetail from './EmployeeDetail';
 
+function getInitialSelectedId() {
+  if (typeof window === 'undefined') return null;
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('employee');
+  return id ? parseInt(id) : null;
+}
+
 export default function App({ user }) {
   const [employees, setEmployees] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedId, _setSelectedId] = useState(getInitialSelectedId);
+
+  const setSelectedId = useCallback((id) => {
+    _setSelectedId(id);
+    const url = id ? `/dashboard?employee=${id}` : '/dashboard';
+    window.history.pushState(null, '', url);
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('employee');
+      _setSelectedId(id ? parseInt(id) : null);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   const [budget, setBudget] = useState(15000);
   const [competencies, setCompetencies] = useState([]);
   const [settings, setSettings] = useState({ budget: 15000, githubOrg: '' });
@@ -52,12 +75,23 @@ export default function App({ user }) {
     setEmployees((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
 
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = setTimeout(() => {
-      fetch(`/api/employees/${updated.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated),
-      }).catch((err) => console.error('Failed to save employee:', err));
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/employees/${updated.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          console.error('Failed to save employee:', res.status, err);
+          return;
+        }
+        const saved = await res.json();
+        setEmployees((prev) => prev.map((e) => (e.id === saved.id ? saved : e)));
+      } catch (err) {
+        console.error('Failed to save employee:', err);
+      }
     }, 300);
   }, []);
 
